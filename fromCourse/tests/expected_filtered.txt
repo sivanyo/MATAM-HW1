@@ -1,0 +1,1 @@
+name: Smart TV, id: 11, amount: 4.000, price: 5000.000
