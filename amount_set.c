@@ -48,26 +48,11 @@ AmountSet asCreate(CopyASElement copyElement,
 }
 
 void asDestroy(AmountSet set) {
-    if (set == NULL) {
-        return;
-    }
-
-    // Setting iterator to point to the first element in the linked list.
-    ElementNode current = set->head;
-    // temporary placeholder to free up nodes in the linked list.
-    ElementNode next = NULL;
-    while(current != NULL) {
-        // Setting the temporary placeholder to the next node.
-        next = current->next;
-        // Freeing the ASElement using the built in free function pointer.
-        set->free(current->element);
-        // Freeing the current node.
-        free(current);
-        // Progressing the iterator.
-        current = next;
-    }
-
-    free(set);
+    /*
+     * This function will go over each node in the linked list and free it (probably using a while loop
+     * until it encounters an ElementNode object with NULL in it's next field,
+     * after it is done it will free the amount set object.
+     */
 }
 
 AmountSet asCopy(AmountSet set) {
@@ -79,7 +64,6 @@ AmountSet asCopy(AmountSet set) {
      */
 }
 
-// TODO: sivan
 int asGetSize(AmountSet set) {
     /*
      * This function will iterate over all of the items in the linked list and return the number of objects stored using code
@@ -96,7 +80,6 @@ int asGetSize(AmountSet set) {
      */
 }
 
-// TODO: sivan
 bool asContains(AmountSet set, ASElement element) {
     /*
      * This function will iterate over the elements in the linked list and return true if the compare function
