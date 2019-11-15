@@ -64,7 +64,15 @@ AmountSet asCopy(AmountSet set) {
      */
 }
 
+// TODO: sivan
 int asGetSize(AmountSet set) {
+    int size = 0;
+    struct list_node* current = set->head;
+    while (current) {
+        ++size;
+        current = current->next;
+    }
+    return size;
     /*
      * This function will iterate over all of the items in the linked list and return the number of objects stored using code
      * similar to this:
@@ -80,13 +88,23 @@ int asGetSize(AmountSet set) {
      */
 }
 
+// TODO: sivan
 bool asContains(AmountSet set, ASElement element) {
+    struct list_node* current = set->head;
+    while(current) {
+        if (!compareElements(current, element)) {
+            return true;
+        }
+    }
+    return false;
+
     /*
      * This function will iterate over the elements in the linked list and return true if the compare function
      * found an element which the value returned for was 0, if it finished going over the elements in the linked list
      * and didn't find one, it will return false.
      */
 }
+
 
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount) {
     /*
