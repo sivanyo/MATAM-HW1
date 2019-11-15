@@ -1,0 +1,2 @@
+Link to an example of a linked list implementation with a built in iterator
+https://gist.github.com/icheishvili/4190607
