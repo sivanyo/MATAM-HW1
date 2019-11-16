@@ -13,7 +13,6 @@ typedef struct element_node_t {
 
 struct AmountSet_t {
     ElementNode head;
-    // adding possible iterator tracker
     ElementNode current;
     CopyASElement copy;
     FreeASElement free;
@@ -25,7 +24,7 @@ AmountSet asCreate(CopyASElement copyElement,
                    CompareASElements compareElements) {
     AmountSet as = malloc(sizeof(as));
     if (as == NULL) {
-        return NULL;
+        return AS_OUT_OF_MEMORY;
     }
     as->head = NULL;
 
@@ -136,11 +135,14 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     }
 
     if (asContains(set, element)) {
-        return AS_SUCCESS;
+        return AS_ITEM_ALREADY_EXISTS;
     }
 
-    ElementNode elementNode = malloc(sizeof(element));
-    elementNode->element = element;
+    ElementNode elementNode = malloc(sizeof(elementNode));
+    if (elementNode == NULL) {
+        return AS_OUT_OF_MEMORY;
+    }
+    elementNode->element = set->copy(element);
     elementNode->amount = 0;
     if (set->head == NULL) {
         elementNode->next = NULL;
@@ -168,26 +170,48 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
 }
 
 AmountSetResult asDelete(AmountSet set, ASElement element) {
-    /*
-     * This function will use asContains to check if an element exists, if it does it will search for it,
-     * free it and set the element in the linked list pointing to it to point to the object after it in the list.
-     */
+
 }
 
 AmountSetResult asClear(AmountSet set) {
-    /*
-     * This function will iterate over all items in the linked list and will free them.
-     */
+    if (set == NULL) {
+        return AS_NULL_ARGUMENT;
+    }
+
+    ElementNode current = set->head;
+    ElementNode next;
+    while(current != NULL) {
+        next = current->next;
+        set->free(current->element);
+        free(current);
+        current = next;
+    }
+
+    return AS_SUCCESS;
 }
 
 ASElement asGetFirst(AmountSet set) {
-    /*
-     * This function will set the "current" iterator object for the head of the linked list and return the ASElement it points to.
-     */
+    if (set == NULL) {
+        return NULL;
+    }
+
+    if (set->head != NULL) {
+        set->current = set->head;
+        return set->current->element;
+    }
+
+    return NULL;
 }
 
 ASElement asGetNext(AmountSet set) {
-    /*
-     * This function will set the "current" iterator object for the next item in the linked list and return the ASElement it points to.
-     */
+    if (set == NULL) {
+        return NULL;
+    }
+
+    if (set->current->next != NULL) {
+        set->current = set->current->next;
+        return set->current->element;
+    }
+
+    return NULL;
 }
