@@ -24,7 +24,7 @@ AmountSet asCreate(CopyASElement copyElement,
                    CompareASElements compareElements) {
     AmountSet as = malloc(sizeof(as));
     if (as == NULL) {
-        return AS_OUT_OF_MEMORY;
+        return NULL;
     }
     as->head = NULL;
 
@@ -70,19 +70,40 @@ AmountSet asCopy(AmountSet set) {
         return NULL;
     }
 
-    AmountSet as = malloc(sizeof(as));
+    AmountSet as = asCreate(set->copy, set->free, set->compareElements);
     if (as == NULL) {
         return NULL;
     }
 
+    if (set->head == NULL) {
+        // linked list in original set is empty, so we can end.
+        return as;
+    }
     ElementNode current = set->head;
     ElementNode newNode = malloc(sizeof(newNode));
+    if (newNode == NULL) {
+        asDestroy(as);
+        return NULL;
+    }
     newNode->element = set->copy(current->element);
     newNode->amount = current->amount;
     as->head = newNode;
+    ElementNode previous = newNode;
+    current = current->next;
     while(current != NULL) {
-
+        ElementNode newNode = malloc(sizeof(newNode));
+        if (newNode == NULL) {
+            asDestroy(as);
+            return NULL;
+        }
+        newNode->element = set->copy(current->element);
+        newNode->amount = current->amount;
+        previous->next = newNode;
+        previous = previous->next;
+        current = current->next;
     }
+
+    return as;
 }
 
 int asGetSize(AmountSet set) {
@@ -103,8 +124,8 @@ int asGetSize(AmountSet set) {
 }
 
 bool asContains(AmountSet set, ASElement element) {
-    if (set == NULL) {
-        false;
+    if (set == NULL || element == NULL) {
+        return false;
     }
 
     ElementNode current = set->head;
@@ -159,6 +180,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         // We are at the head of the linked list, adding as first item.
         newNode->next = NULL;
         set->head = newNode;
+        return AS_SUCCESS;
     } else {
         // We are adding an item to a linked list which already has items,
         // finding the correct position to add the new item.
@@ -179,7 +201,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         // If we reach the end of the loop that means we didn't find a place
         // in the middle of the list for the new element, that means it needs
         // to be placed at the end of the linked list.
-        current->next = newNode;
+        previous->next = newNode;
         return AS_SUCCESS;
     }
 }
