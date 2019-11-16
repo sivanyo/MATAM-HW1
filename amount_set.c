@@ -16,7 +16,7 @@ struct AmountSet_t {
     ElementNode current;
     CopyASElement copy;
     FreeASElement free;
-    CompareASElements compareElements;
+    CompareASElements compare;
 };
 
 AmountSet asCreate(CopyASElement copyElement,
@@ -41,7 +41,7 @@ AmountSet asCreate(CopyASElement copyElement,
     if (compareElements == NULL) {
         return NULL;
     }
-    as->compareElements = compareElements;
+    as->compare = compareElements;
 
     return as;
 }
@@ -65,18 +65,22 @@ void asDestroy(AmountSet set) {
     free(set);
 }
 
+/*
+ * fixme: this function might have an issue with pointers,
+ * in general in places where we used node = next or similar, we might have a reference issue.
+ */
 AmountSet asCopy(AmountSet set) {
     if (set == NULL) {
         return NULL;
     }
 
-    AmountSet as = asCreate(set->copy, set->free, set->compareElements);
+    AmountSet as = asCreate(set->copy, set->free, set->compare);
     if (as == NULL) {
         return NULL;
     }
 
     if (set->head == NULL) {
-        // linked list in original set is empty, so we can end.
+        // linked list in original set is empty, so we can return.
         return as;
     }
     ElementNode current = set->head;
@@ -90,7 +94,7 @@ AmountSet asCopy(AmountSet set) {
     as->head = newNode;
     ElementNode previous = newNode;
     current = current->next;
-    while(current != NULL) {
+    while (current != NULL) {
         ElementNode newNode = malloc(sizeof(newNode));
         if (newNode == NULL) {
             asDestroy(as);
@@ -130,7 +134,7 @@ bool asContains(AmountSet set, ASElement element) {
 
     ElementNode current = set->head;
     while (current != NULL) {
-        if (!set->compareElements(current->element, element)) {
+        if (!set->compare(current->element, element)) {
             return true;
         }
         current = current->next;
@@ -148,7 +152,7 @@ AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount)
     while (current != NULL) {
         // Going over the elements in the linked list until we find
         // the one we need the amount for.
-        if (!set->compareElements(current->element, element)) {
+        if (!set->compare(current->element, element)) {
             // The requested element was found, returning success code
             // and updating amount variable.
             *outAmount = current->amount;
@@ -187,7 +191,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         ElementNode current = set->head;
         ElementNode previous = current;
         while (current != NULL) {
-            if (set->compareElements(current->element, element) > 0) {
+            if (set->compare(current->element, element) > 0) {
                 // we found an item in the set that is larger than the
                 // item we want to insert, so we will insert the new item
                 // before it.
@@ -213,7 +217,7 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
 
     ElementNode current = set->head;
     while (current != NULL) {
-        if (!set->compareElements(current->element, element)) {
+        if (!set->compare(current->element, element)) {
             current->amount += amount;
             return AS_SUCCESS;
         }
@@ -231,7 +235,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     ElementNode current = set->head;
     ElementNode previous = current;
     while (current != NULL) {
-        if (!set->compareElements(current->element, element)) {
+        if (!set->compare(current->element, element)) {
             previous->next = current->next;
             set->free(current->element);
             free(current);
