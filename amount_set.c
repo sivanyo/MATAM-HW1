@@ -65,6 +65,10 @@ AmountSet asCopy(AmountSet set) {
 }
 
 int asGetSize(AmountSet set) {
+    if (set == NULL) {
+        return -1;
+    }
+
     int count = 0;
     // Creating variable to iterate over linked list
     ElementNode elementNode = set->head;
@@ -78,6 +82,10 @@ int asGetSize(AmountSet set) {
 }
 
 bool asContains(AmountSet set, ASElement element) {
+    if (set == NULL) {
+        false;
+    }
+
     ElementNode current = set->head;
     while(current) {
         if (!compareElements(current, element)) {

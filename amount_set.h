@@ -88,6 +88,7 @@ AmountSet asCreate(CopyASElement copyElement,
  * @param set - Target set to be deallocated. If set is NULL nothing will be done.
  */
 void asDestroy(AmountSet set);
+void asDestroy(AmountSet set);
 
 /**
  * asCopy: Creates a copy of target set.
