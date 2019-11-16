@@ -97,6 +97,7 @@ bool asContains(AmountSet set, ASElement element) {
         }
     }
     return false;
+    
 
     /*
      * This function will iterate over the elements in the linked list and return true if the compare function
