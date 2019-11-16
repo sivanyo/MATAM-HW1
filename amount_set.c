@@ -75,37 +75,17 @@ int asGetSize(AmountSet set) {
     }
 
     return count;
-    /*
-     * This function will iterate over all of the items in the linked list and return the number of objects stored using code
-     * similar to this:
-     *size_t list_size(struct list* l) {
-    size_t count = 0;
-    struct list_node* curr = l->head;
-    while (curr) {
-        count++;
-        curr = curr->next;
-    }
-    return count;
-}
-     */
 }
 
-// TODO: sivan
 bool asContains(AmountSet set, ASElement element) {
-    struct list_node* current = set->head;
+    ElementNode current = set->head;
     while(current) {
         if (!compareElements(current, element)) {
             return true;
         }
+        current = current->next;
     }
     return false;
-    
-
-    /*
-     * This function will iterate over the elements in the linked list and return true if the compare function
-     * found an element which the value returned for was 0, if it finished going over the elements in the linked list
-     * and didn't find one, it will return false.
-     */
 }
 
 
