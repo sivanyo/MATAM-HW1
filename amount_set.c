@@ -64,26 +64,28 @@ AmountSet asCopy(AmountSet set) {
      */
 }
 
-// TODO: sivan
 int asGetSize(AmountSet set) {
-    int size = 0;
-    struct list_node* current = set->head;
-    while (current) {
-        ++size;
-        current = current->next;
+    int count = 0;
+    // Creating variable to iterate over linked list
+    ElementNode elementNode = set->head;
+    while(elementNode != NULL) {
+        // Counting until the end of the linked list.
+        count++;
+        elementNode = elementNode->next;
     }
-    return size;
+
+    return count;
     /*
      * This function will iterate over all of the items in the linked list and return the number of objects stored using code
      * similar to this:
      *size_t list_size(struct list* l) {
-    size_t size = 0;
+    size_t count = 0;
     struct list_node* curr = l->head;
     while (curr) {
-        size++;
+        count++;
         curr = curr->next;
     }
-    return size;
+    return count;
 }
      */
 }
