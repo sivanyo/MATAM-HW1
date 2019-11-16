@@ -48,11 +48,22 @@ AmountSet asCreate(CopyASElement copyElement,
 }
 
 void asDestroy(AmountSet set) {
-    /*
-     * This function will go over each node in the linked list and free it (probably using a while loop
-     * until it encounters an ElementNode object with NULL in it's next field,
-     * after it is done it will free the amount set object.
-     */
+    if (set == NULL) {
+        return;
+    }
+
+    ElementNode current = set->head;
+    ElementNode next;
+    while(current != NULL) {
+        next = current->next;
+        set->free(current->element);
+        free(current);
+        current = next;
+    }
+
+    free(current);
+    free(next);
+    free(set);
 }
 
 AmountSet asCopy(AmountSet set) {
