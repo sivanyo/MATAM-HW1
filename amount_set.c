@@ -71,11 +71,11 @@ int asGetSize(AmountSet set) {
 
     int count = 0;
     // Creating variable to iterate over linked list
-    ElementNode elementNode = set->head;
-    while(elementNode != NULL) {
+    ElementNode current = set->head;
+    while (current != NULL) {
         // Counting until the end of the linked list.
         count++;
-        elementNode = elementNode->next;
+        current = current->next;
     }
 
     return count;
@@ -87,8 +87,8 @@ bool asContains(AmountSet set, ASElement element) {
     }
 
     ElementNode current = set->head;
-    while(current) {
-        if (!compareElements(current, element)) {
+    while (current != NULL) {
+        if (!set->compareElements(current->element, element)) {
             return true;
         }
         current = current->next;
@@ -98,10 +98,25 @@ bool asContains(AmountSet set, ASElement element) {
 
 
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount) {
-    /*
-     * This function will use asContains function to check if an element exists, if it does
-     * it will search for it in the linked list and set the value of the pointer to the amount.
-     */
+    if (set == NULL || element == NULL) {
+        return AS_NULL_ARGUMENT;
+    }
+
+    ElementNode current = set->head;
+    while (current != NULL) {
+        // Going over the elements in the linked list until we find
+        // the one we need the amount for.
+        if (!set->compareElements(current->element, element)) {
+            // The requested element was found, returning success code
+            // and updating amount variable.
+            *outAmount = current->amount;
+            return AS_SUCCESS;
+        }
+        current = current->next;
+    }
+
+    // Item was not found.
+    return AS_ITEM_DOES_NOT_EXIST;
 }
 
 AmountSetResult asRegister(AmountSet set, ASElement element) {
