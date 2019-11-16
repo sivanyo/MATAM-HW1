@@ -53,7 +53,7 @@ void asDestroy(AmountSet set) {
 
     ElementNode current = set->head;
     ElementNode next;
-    while(current != NULL) {
+    while (current != NULL) {
         next = current->next;
         set->free(current->element);
         free(current);
@@ -66,12 +66,23 @@ void asDestroy(AmountSet set) {
 }
 
 AmountSet asCopy(AmountSet set) {
-    /*
-     * This function will create a copy of the current amount set using following actions:
-     * 1. Create a new empty amount set with default values (using the same free, copy and compare functions of the original AS
-     * 2. Iterate over all node head in the linked list and copy them in the same order to the new amount set
-     * 3. return the new amount set
-     */
+    if (set == NULL) {
+        return NULL;
+    }
+
+    AmountSet as = malloc(sizeof(as));
+    if (as == NULL) {
+        return NULL;
+    }
+
+    ElementNode current = set->head;
+    ElementNode newNode = malloc(sizeof(newNode));
+    newNode->element = set->copy(current->element);
+    newNode->amount = current->amount;
+    as->head = newNode;
+    while(current != NULL) {
+
+    }
 }
 
 int asGetSize(AmountSet set) {
@@ -130,7 +141,7 @@ AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount)
 }
 
 AmountSetResult asRegister(AmountSet set, ASElement element) {
-    if (set == NULL) {
+    if (set == NULL || element == NULL) {
         return AS_NULL_ARGUMENT;
     }
 
@@ -138,39 +149,77 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_ITEM_ALREADY_EXISTS;
     }
 
-    ElementNode elementNode = malloc(sizeof(elementNode));
-    if (elementNode == NULL) {
+    ElementNode newNode = malloc(sizeof(newNode));
+    if (newNode == NULL) {
         return AS_OUT_OF_MEMORY;
     }
-    elementNode->element = set->copy(element);
-    elementNode->amount = 0;
+    newNode->element = set->copy(element);
+    newNode->amount = 0;
     if (set->head == NULL) {
-        elementNode->next = NULL;
-        set->head = elementNode;
+        // We are at the head of the linked list, adding as first item.
+        newNode->next = NULL;
+        set->head = newNode;
     } else {
-        /*
-         * need to check where to put the new element we're adding to the element nodes linked list
-         * we need to iterate over th existing head and use the compare function to compare the element of a node
-         * to the element we received with the function, if the value of the current node we're checking as smaller than the value
-         * of our supplied element, and the value of the next supplied node is larger, then that is where we need to add the item
-         * if the value is lower on both, our element needs to be further up in the linked note (for example our value is 4 and we're checking
-         * the number 1 and 2, so it should be after them
-         *
-         * use a boolean to check inside the while loop that we haven't added the item to the linked list yet,
-         * also need to check that we haven't reached the end of the list, if we have reached the end of the list we add the new element at the end of it
-         */
+        // We are adding an item to a linked list which already has items,
+        // finding the correct position to add the new item.
+        ElementNode current = set->head;
+        ElementNode previous = current;
+        while (current != NULL) {
+            if (set->compareElements(current->element, element) > 0) {
+                // we found an item in the set that is larger than the
+                // item we want to insert, so we will insert the new item
+                // before it.
+                previous->next = newNode;
+                newNode->next = current;
+                return AS_SUCCESS;
+            }
+            previous = current;
+            current = current->next;
+        }
+        // If we reach the end of the loop that means we didn't find a place
+        // in the middle of the list for the new element, that means it needs
+        // to be placed at the end of the linked list.
+        current->next = newNode;
+        return AS_SUCCESS;
     }
 }
 
 AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount) {
-    /*
-     * This function use asContains to check if an element exists, if it does
-     * it will search for it in the linked list and change it's amount.
-     */
+    if (set == NULL || element == NULL) {
+        return AS_NULL_ARGUMENT;
+    }
+
+    ElementNode current = set->head;
+    while (current != NULL) {
+        if (!set->compareElements(current->element, element)) {
+            current->amount += amount;
+            return AS_SUCCESS;
+        }
+        current = current->next;
+    }
+
+    return AS_ITEM_DOES_NOT_EXIST;
 }
 
 AmountSetResult asDelete(AmountSet set, ASElement element) {
+    if (set == NULL || element == NULL) {
+        return AS_NULL_ARGUMENT;
+    }
 
+    ElementNode current = set->head;
+    ElementNode previous = current;
+    while (current != NULL) {
+        if (!set->compareElements(current->element, element)) {
+            previous->next = current->next;
+            set->free(current->element);
+            free(current);
+            return AS_SUCCESS;
+        }
+        previous = current;
+        current = current->next;
+    }
+
+    return AS_ITEM_DOES_NOT_EXIST;
 }
 
 AmountSetResult asClear(AmountSet set) {
@@ -180,7 +229,7 @@ AmountSetResult asClear(AmountSet set) {
 
     ElementNode current = set->head;
     ElementNode next;
-    while(current != NULL) {
+    while (current != NULL) {
         next = current->next;
         set->free(current->element);
         free(current);
