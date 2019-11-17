@@ -22,25 +22,14 @@ struct AmountSet_t {
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
-    AmountSet as = malloc(sizeof(as));
-    if (as == NULL) {
+    AmountSet as = malloc(sizeof(*as));
+    if (as == NULL || copyElement == NULL || freeElement == NULL || compareElements == NULL) {
         return NULL;
     }
     as->head = NULL;
-
-    if (copyElement == NULL) {
-        return NULL;
-    }
+    as->current = NULL;
     as->copy = copyElement;
-
-    if (freeElement == NULL) {
-        return NULL;
-    }
     as->free = freeElement;
-
-    if (compareElements == NULL) {
-        return NULL;
-    }
     as->compare = compareElements;
 
     return as;
@@ -85,7 +74,7 @@ AmountSet asCopy(AmountSet set) {
         return as;
     }
     ElementNode current = set->head;
-    ElementNode newNode = malloc(sizeof(newNode));
+    ElementNode newNode = malloc(sizeof(*newNode));
     if (newNode == NULL) {
         asDestroy(as);
         return NULL;
@@ -96,7 +85,7 @@ AmountSet asCopy(AmountSet set) {
     ElementNode previous = newNode;
     current = current->next;
     while (current != NULL) {
-        ElementNode newNode = malloc(sizeof(newNode));
+        ElementNode newNode = malloc(sizeof(*newNode));
         if (newNode == NULL) {
             asDestroy(as);
             return NULL;
@@ -175,15 +164,15 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_ITEM_ALREADY_EXISTS;
     }
 
-    ElementNode newNode = malloc(sizeof(newNode));
+    ElementNode newNode = malloc(sizeof(*newNode));
     if (newNode == NULL) {
         return AS_OUT_OF_MEMORY;
     }
     newNode->element = set->copy(element);
     newNode->amount = 0;
+    newNode->next = NULL;
     if (set->head == NULL) {
         // We are at the head of the linked list, adding as first item.
-        newNode->next = NULL;
         set->head = newNode;
         return AS_SUCCESS;
     } else {
@@ -219,6 +208,9 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
     ElementNode current = set->head;
     while (current != NULL) {
         if (!set->compare(current->element, element)) {
+            if (current->amount += amount < 0) {
+                return AS_INSUFFICIENT_AMOUNT;
+            }
             current->amount += amount;
             return AS_SUCCESS;
         }
