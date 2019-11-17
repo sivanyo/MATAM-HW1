@@ -60,9 +60,10 @@ void asDestroy(AmountSet set) {
         current = next;
     }
 
-    free(current);
-    free(next);
+    current = NULL;
+    next = NULL;
     free(set);
+    set = NULL;
 }
 
 /*
@@ -239,6 +240,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
             previous->next = current->next;
             set->free(current->element);
             free(current);
+            current = NULL;
             return AS_SUCCESS;
         }
         previous = current;
@@ -259,6 +261,7 @@ AmountSetResult asClear(AmountSet set) {
         next = current->next;
         set->free(current->element);
         free(current);
+        current = NULL;
         current = next;
     }
 
