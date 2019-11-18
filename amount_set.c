@@ -85,7 +85,7 @@ AmountSet asCopy(AmountSet set) {
     ElementNode previous = newNode;
     current = current->next;
     while (current != NULL) {
-        ElementNode newNode = malloc(sizeof(*newNode));
+        newNode = malloc(sizeof(*newNode));
         if (newNode == NULL) {
             asDestroy(as);
             return NULL;
@@ -179,9 +179,14 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         // We are adding an item to a linked list which already has items,
         // finding the correct position to add the new item.
         ElementNode current = set->head;
+        if (set->compare(element, current->element) < 0) {
+            newNode->next = current;
+            set->head = newNode;
+            return AS_SUCCESS;
+        }
         ElementNode previous = current;
         while (current != NULL) {
-            if (set->compare(current->element, element) > 0) {
+            if (set->compare(element, current->element) < 0) {
                 // we found an item in the set that is larger than the
                 // item we want to insert, so we will insert the new item
                 // before it.
@@ -208,7 +213,7 @@ AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double am
     ElementNode current = set->head;
     while (current != NULL) {
         if (!set->compare(current->element, element)) {
-            if (current->amount += amount < 0) {
+            if (current->amount + amount < 0) {
                 return AS_INSUFFICIENT_AMOUNT;
             }
             current->amount += amount;
@@ -226,6 +231,14 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     }
 
     ElementNode current = set->head;
+    if (!set->compare(current->element, element)) {
+        // The first item in the linked list is the one we need to remove
+        // Freeing and setting a new head.
+        set->head = current->next;
+        free(current);
+        current = NULL;
+        return AS_SUCCESS;
+    }
     ElementNode previous = current;
     while (current != NULL) {
         if (!set->compare(current->element, element)) {
@@ -253,10 +266,9 @@ AmountSetResult asClear(AmountSet set) {
         next = current->next;
         set->free(current->element);
         free(current);
-        current = NULL;
         current = next;
     }
-
+    set->head = NULL;
     return AS_SUCCESS;
 }
 
