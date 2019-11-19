@@ -23,7 +23,10 @@ AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
     AmountSet as = malloc(sizeof(*as));
-    if (as == NULL || copyElement == NULL || freeElement == NULL || compareElements == NULL) {
+    if (as == NULL ||
+        copyElement == NULL ||
+        freeElement == NULL ||
+        compareElements == NULL) {
         return NULL;
     }
     as->head = NULL;
@@ -55,10 +58,6 @@ void asDestroy(AmountSet set) {
     set = NULL;
 }
 
-/*
- * fixme: this function might have an issue with pointers,
- * in general in places where we used node = next or similar, we might have a reference issue.
- */
 AmountSet asCopy(AmountSet set) {
     if (set == NULL) {
         return NULL;
@@ -80,6 +79,11 @@ AmountSet asCopy(AmountSet set) {
         return NULL;
     }
     newNode->element = set->copy(current->element);
+    if (newNode->element == NULL) {
+        free(newNode);
+        asDestroy(as);
+        return NULL;
+    }
     newNode->amount = current->amount;
     as->head = newNode;
     ElementNode previous = newNode;
@@ -91,6 +95,11 @@ AmountSet asCopy(AmountSet set) {
             return NULL;
         }
         newNode->element = set->copy(current->element);
+        if (newNode->element == NULL) {
+            free(newNode);
+            asDestroy(as);
+            return NULL;
+        }
         newNode->amount = current->amount;
         previous->next = newNode;
         previous = previous->next;
@@ -169,6 +178,10 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_OUT_OF_MEMORY;
     }
     newNode->element = set->copy(element);
+    if (newNode->element == NULL) {
+        free(newNode);
+        return AS_OUT_OF_MEMORY;
+    }
     newNode->amount = 0;
     newNode->next = NULL;
     if (set->head == NULL) {
@@ -176,7 +189,6 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         set->head = newNode;
         return AS_SUCCESS;
     } else {
-        // We are adding an item to a linked list which already has items,
         // finding the correct position to add the new item.
         ElementNode current = set->head;
         if (set->compare(element, current->element) < 0) {
