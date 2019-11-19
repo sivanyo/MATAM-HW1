@@ -22,7 +22,7 @@ struct AmountSet_t {
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
-    AmountSet as = malloc(sizeof(*as));
+    AmountSet as = calloc(1, sizeof(*as));
     if (as == NULL ||
         copyElement == NULL ||
         freeElement == NULL ||
@@ -73,7 +73,7 @@ AmountSet asCopy(AmountSet set) {
         return as;
     }
     ElementNode current = set->head;
-    ElementNode newNode = malloc(sizeof(*newNode));
+    ElementNode newNode = calloc(1, sizeof(*newNode));
     if (newNode == NULL) {
         asDestroy(as);
         return NULL;
@@ -89,7 +89,7 @@ AmountSet asCopy(AmountSet set) {
     ElementNode previous = newNode;
     current = current->next;
     while (current != NULL) {
-        newNode = malloc(sizeof(*newNode));
+        newNode = calloc(1, sizeof(*newNode));
         if (newNode == NULL) {
             asDestroy(as);
             return NULL;
@@ -173,7 +173,7 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
         return AS_ITEM_ALREADY_EXISTS;
     }
 
-    ElementNode newNode = malloc(sizeof(*newNode));
+    ElementNode newNode = calloc(1, sizeof(*newNode));
     if (newNode == NULL) {
         return AS_OUT_OF_MEMORY;
     }
