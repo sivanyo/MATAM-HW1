@@ -124,8 +124,15 @@ void matamazomDestroy(Matamazom matamazom);
  * @param name - name of the product, e.g. "apple". Must be non-empty.
  * @param amount - the initial amount of the product when added to the warehouse.
  * @param amountType - defines what are valid amounts for this product.
+ * @param customData - pointer to product's additional data
+ * @param copyData - function pointer to be used for copying product's additional 
+ *      data.
+ * @param freeData - function pointer to be used for free product data.
+ * @param prodPrice - function pointer to be used for getting the price of some 
+ *      product.
  * @return
- *     MATAMAZOM_NULL_ARGUMENT - if matamazom or name are NULL.
+ *     MATAMAZOM_NULL_ARGUMENT - if matamazom/name/customData/copyData/freeData
+ *      /prodPrice are NULL.
  *     MATAMAZOM_INVALID_NAME - if name is empty, or doesn't start with a
  *         letter (a -z, A -Z) or a digit (0 -9).
  *     MATAMAZOM_INVALID_AMOUNT - if amount < 0, or is not consistent with amountType
@@ -135,7 +142,8 @@ void matamazomDestroy(Matamazom matamazom);
  */
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
-                              const MtmProductData, MtmCopyData, MtmFreeData, MtmGetProductPrice);
+                              const MtmProductData customData, MtmCopyData copyData,
+                              MtmFreeData freeData, MtmGetProductPrice prodPrice);
 /**
  * mtmChangeProductAmount: increase or decrease the amount of an *existing* product in a Matamazom warehouse.
  * if 'amount' < 0 then this amount should be decreased from the matamazom warehouse.
@@ -174,7 +182,7 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int i
  * completely from the warehouse, from all existing orders and from the
  * 'income' mechanism(holding the profits for each existing product).
  * For example, after clearing a product with
- * mtmClearProduct, calling mtmAddProduct on that product will fail.
+ * mtmClearProduct, calling mtmChangeProductAmount on that product will fail.
  *
  * @param matamazom - warehouse to remove the product from.
  * @param id - id of product to be removed.
@@ -302,10 +310,6 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
 /**
  * mtmPrintBestSelling: print the best selling products of a Matamazom
  * warehouse, as explained in the *.pdf.
- *
- * Print the products in descending order, from the best selling (highest total
- * income) to the worst selling (lowest total income). For each product, print
- * its name, id and total income.
  *
  * @param matamazom - a Matamazom warehouse.
  * @param output - an open, writable output stream, to which the order is printed.

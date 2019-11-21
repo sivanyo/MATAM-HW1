@@ -40,7 +40,6 @@ typedef enum AmountSetResult_t {
     AS_SUCCESS = 0,
     AS_OUT_OF_MEMORY,
     AS_NULL_ARGUMENT,
-    AS_INVALID_AMOUNT,
     AS_ITEM_ALREADY_EXISTS,
     AS_ITEM_DOES_NOT_EXIST,
     AS_INSUFFICIENT_AMOUNT
@@ -185,6 +184,10 @@ AmountSetResult asRegister(AmountSet set, ASElement element);
  * @return
  *     AS_NULL_ARGUMENT - if a NULL argument was passed.
  *     AS_ITEM_DOES_NOT_EXIST - if the element doesn't exist in the set.
+ *     AS_INSUFFICIENT_AMOUNT - if amount is negative and the element's amount
+ *         in the set is less than the amount that needs to be decreased (i.e.,
+ *         if the change will result in a negative amount for the element in the
+ *         set.)
  *     AS_SUCCESS - if the element's amount was changed successfully.
  *
  * @note parameter amount doesn't affect the return value. Even if amount is 0,
@@ -225,10 +228,10 @@ AmountSetResult asClear(AmountSet set);
 
 /**
  * asGetFirst: Sets the internal iterator (also called current element) to
- * the first  element in the set. There doesn't need to be an internal order
- * of the elements so the "first" element is any element.
+ * the first  element in the set. The first element is the smallest element
+ * of the set, according to the set's comparison function.
  * Use this to start iterating over the set.
- * To continue iteration use asGetNext
+ * To continue iteration use asGetNext.
  *
  * @param set - The set for which to set the iterator and return the first
  *     element.
@@ -240,7 +243,8 @@ ASElement asGetFirst(AmountSet set);
 
 /**
  * asGetNext: Advances the set iterator to the next element and returns it.
- * The next element is any element not previously returned by the iterator.
+ * The iteration is in ascending order on the set's elements, according to the
+ * set's comparison function.
  *
  * @param set - The set for which to advance the iterator
  * @return
