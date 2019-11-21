@@ -50,7 +50,19 @@ struct Matamazom_t {
 // TODO: sivan :) :-) :] :-] :D
 Matamazom matamazomCreate() {
     // This function will allocate memory for a new Matamazon object and return it to the user.
+    struct Matamzom_t new = malloc(sizeof(struct Matamazom_t));
+    struct product_t *newProduct = malloc(sizeof(struct product_t));
+    struct order_t *newOrder = malloc(sizeof(struct order_t));
+    if (new == NULL || newProduct == NULL || newOrder == NULL) {
+        return NULL;
+    }
+    new->productHead->name =NULL;
+    new->productCurrent = NULL; //should i put something in the fields?
+    new->orderHead = NULL;
+    new->orderCurrent = NULL;
+    return new;
 }
+
 
 void matamazomDestroy(Matamazom matamazom) {
     // This function will iterate over the linked lists for products and orders and free them
@@ -63,6 +75,27 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
     // This function will create a new productNode and add it to the products linked list.
+    if (matamazom == NULL || copyData == NULL || freeData ==NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    Matamazom newProduct = malloc(sizeof(Matamazom);
+    if (newProduct == NULL) {
+        return NULL;
+    }
+    newProduct->productsCurrent->name = *name;
+    newProduct->productsCurrent->id= id;
+    newProduct->productsCurrent->product= customData;
+    newProduct->productsCurrent->amount = amount;
+    newProduct->productsCurrent->amountType = amountType;
+    newProduct->productsCurrent->copy = copyData;
+    newProduct->productsCurrent->free = freeData;
+    newProduct->productsCurrent->price = prodPrice;
+    newProduct->productsCurrent->next=NULL;
+
+    //how to continue???
+
+    return newProduct;
+
 }
 
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount) {
@@ -76,8 +109,20 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
 
 // TODO: sivan :) :-) :] :-] :D
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
-    // This function will create a new empty order, add it to the end
-    // of the orders linked list and return it's ID
+    if(matamazom ==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    Matamazom newOrder = malloc(sizeof(Matamazom));
+    if (newOrder = =NULL){
+        return NULL;
+    }
+    newOrder->ordersCurrent->next =NULL;
+    newOrder->ordersCurrent->id= matamazom->ordersCurrent->id;
+    if(  newOrder->ordersCurrent->id < 0 ){
+        return 0;
+    }
+    return newOrder->ordersCurrent->id ;
+
 }
 
 // TODO: sivan :) :-) :] :-] :D
@@ -97,7 +142,24 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 // TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
-    // This function will receive an order and completely free it.
+    if ( matamazom == NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    //we need to replace the head of the list
+    if (matamazom->ordersHead->id = orderId){
+        matamazom->ordersCurrent= matamazom->ordersHead->next;
+        free(matamazom->ordersHead);
+        matamazom->ordersHead = matamazom->ordersHead;
+    }
+    matamazom->ordersCurrent= matamazom->ordersHead->next;
+    while (matamazom->ordersCurrent->id != orderId){
+        if (matamazom->ordersCurrent->next = NULL) {
+            return MATAMAZOM_ORDER_NOT_EXIST;
+        }
+        matamazom->ordersCurrent=matamazom->ordersCurrent->next;
+    }
+    // dont understand of I need to free the struct..
+
 }
 
 MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
