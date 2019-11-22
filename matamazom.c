@@ -82,6 +82,7 @@ Matamazom matamazomCreate() {
     return matamazom;
 }
 
+// TODO: sivan :) :-) :] :-] :D
 void matamazomDestroy(Matamazom matamazom) {
     // This function will iterate over the linked lists for products and orders and free them
     // and then do the same for the matamazom object
@@ -142,10 +143,12 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     return MATAMAZOM_SUCCESS;
 }
 
+// TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount) {
     // This function will find the product in the linked list and upate it's amount accordingly.
 }
 
+// TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     // This function will remove a productNode from the linked list
     // and also remove the product from all active orders which include it.
@@ -184,6 +187,7 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         // from the order.
     }
 
+// TODO: sivan :) :-) :] :-] :D
     MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
         // This function will check that the inventory in the products linked list
         // is able to ship the required order, will update the income and the inventory
