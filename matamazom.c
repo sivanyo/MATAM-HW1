@@ -47,6 +47,31 @@ struct Matamazom_t {
     OrderNode ordersCurrent;
 };
 
+// custom functions for internal use
+static bool warehouseContainsProduct(Matamazom matamazom, unsigned int id) {
+    ProductNode tempProduct;
+    tempProduct = matamazom->productsHead;
+    while (tempProduct != NULL) {
+        if (tempProduct->id == id) {
+            return true;
+        }
+        tempProduct = tempProduct->next;
+    }
+    return false;
+}
+
+static bool warehouseContainsOrder(Matamazom matamazom, unsigned int id) {
+    OrderNode tempOrder;
+    tempOrder = matamazom->ordersHead;
+    while (tempOrder != NULL) {
+        if (tempOrder->id == id) {
+            return true;
+        }
+        tempOrder = tempOrder->next;
+    }
+    return false;
+}
+
 Matamazom matamazomCreate() {
     Matamazom matamazom = malloc(sizeof(*matamazom));
 //    OrderNode newOrder = malloc(sizeof(*newOrder));
@@ -56,7 +81,6 @@ Matamazom matamazomCreate() {
 
     return matamazom;
 }
-
 
 void matamazomDestroy(Matamazom matamazom) {
     // This function will iterate over the linked lists for products and orders and free them
@@ -127,85 +151,90 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     // and also remove the product from all active orders which include it.
 }
 
-// TODO: sivan :) :-) :] :-] :D
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    // FIXME: #7 wrong allocation, should be of type OrderNode.
-    Matamazom newOrder = malloc(sizeof(Matamazom));
-    if (newOrder = =NULL){
-        return NULL;
-    }
-    newOrder->ordersCurrent->next = NULL;
-    newOrder->ordersCurrent->id = matamazom->ordersCurrent->id;
-    if (newOrder->ordersCurrent->id < 0) {
+    OrderNode newOrder = malloc(sizeof(newOrder));
+    if (newOrder == NULL) {
         return 0;
     }
-    return newOrder->ordersCurrent->id;
-
-}
-
-// TODO: sivan :) :-) :] :-] :D
-MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
-                                              const unsigned int productId, const double amount) {
-    // This function will change the amount of a produt in the order,
-    // if the product doesn't exist, a correct error code will be returned,
-    // if the amount of the product decreases to 0 or less, the product will be removed
-    // from the order.
-}
-
-MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
-    // This function will check that the inventory in the products linked list
-    // is able to ship the required order, will update the income and the inventory
-    // for each product and then delete the order
-}
-
-// TODO: sivan :) :-) :] :-] :D
-MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
-    if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
+    if (matamazom->ordersHead == NULL) {
+        newOrder->id = 1;
+        matamazom->ordersHead = newOrder;
+        return newOrder->id;
     }
-    //we need to replace the head of the list
-    // FIXME: #8 bad practice, you changed the external iterator of the object for now reason. (line 163).
-    if (matamazom->ordersHead->id = orderId) {
-        matamazom->ordersCurrent = matamazom->ordersHead->next;
-        free(matamazom->ordersHead);
-        // FIXME: #9 this line will assign a freed object to ordersHead - not what we want.
-        matamazom->ordersHead = matamazom->ordersHead;
-    }
-    // FIXME: #9 if we already made a change, we shouldn't arrive at this piece of code, need to add a return call in previous block.
-    matamazom->ordersCurrent = matamazom->ordersHead->next;
-    // FIXME: #10 pretty sure this isn't the correct loop logic we need to use.
-    while (matamazom->ordersCurrent->id != orderId) {
-        if (matamazom->ordersCurrent->next = NULL) {
-            return MATAMAZOM_ORDER_NOT_EXIST;
+    OrderNode temp = matamazom->ordersHead;
+    while (temp != NULL) {
+        if (temp->next == NULL) {
+            newOrder->id = temp->id + 1;
+            temp->next = newOrder;
+            return newOrder->id;
         }
-        matamazom->ordersCurrent = matamazom->ordersCurrent->next;
+        temp = temp->next;
     }
-    // dont understand of I need to free the struct..
-
 }
 
-MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
-    // This fucntion will recieve a mtmzon and ouput file and will use the
-    // provided print function to print the contents of the products inventory
-    // to the file.
-}
+// TODO: sivan :) :-) :] :-] :D
+    MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
+                                                  const unsigned int productId, const double amount) {
+        // This function will change the amount of a produt in the order,
+        // if the product doesn't exist, a correct error code will be returned,
+        // if the amount of the product decreases to 0 or less, the product will be removed
+        // from the order.
+    }
 
-MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the built in print functions to print the contents of the orders
-    // list to the file
-}
+    MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
+        // This function will check that the inventory in the products linked list
+        // is able to ship the required order, will update the income and the inventory
+        // for each product and then delete the order
+    }
 
-MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the built in print function to print the best selling product.
-}
+// TODO: sivan :) :-) :] :-] :D
+    MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
+        if (matamazom == NULL) {
+            return MATAMAZOM_NULL_ARGUMENT;
+        }
+        //we need to replace the head of the list
+        // FIXME: #8 bad practice, you changed the external iterator of the object for now reason. (line 163).
+        if (matamazom->ordersHead->id = orderId) {
+            matamazom->ordersCurrent = matamazom->ordersHead->next;
+            free(matamazom->ordersHead);
+            // FIXME: #9 this line will assign a freed object to ordersHead - not what we want.
+            matamazom->ordersHead = matamazom->ordersHead;
+        }
+        // FIXME: #9 if we already made a change, we shouldn't arrive at this piece of code, need to add a return call in previous block.
+        matamazom->ordersCurrent = matamazom->ordersHead->next;
+        // FIXME: #10 pretty sure this isn't the correct loop logic we need to use.
+        while (matamazom->ordersCurrent->id != orderId) {
+            if (matamazom->ordersCurrent->next = NULL) {
+                return MATAMAZOM_ORDER_NOT_EXIST;
+            }
+            matamazom->ordersCurrent = matamazom->ordersCurrent->next;
+        }
+        // dont understand of I need to free the struct..
 
-MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the provided filter function to filter the products inventory,
-    // and then use the built in print function to print each product to a file.
-}
+    }
+
+    MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
+        // This fucntion will recieve a mtmzon and ouput file and will use the
+        // provided print function to print the contents of the products inventory
+        // to the file.
+    }
+
+    MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
+        // This function will receive a mtmzon and output file and will use
+        // the built in print functions to print the contents of the orders
+        // list to the file
+    }
+
+    MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
+        // This function will receive a mtmzon and output file and will use
+        // the built in print function to print the best selling product.
+    }
+
+    MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
+        // This function will receive a mtmzon and output file and will use
+        // the provided filter function to filter the products inventory,
+        // and then use the built in print function to print each product to a file.
+    }
