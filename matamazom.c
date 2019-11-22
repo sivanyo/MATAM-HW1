@@ -10,7 +10,7 @@
 static ASElement copyInt(ASElement number) {
     int *copy = malloc(sizeof(*copy));
     if (copy != NULL) {
-        *copy = *(int *)number;
+        *copy = *(int *) number;
     }
     return copy;
 }
@@ -18,7 +18,7 @@ static ASElement copyInt(ASElement number) {
 static void freeInt(ASElement number) { free(number); }
 
 static int compareInts(ASElement lhs, ASElement rhs) {
-    return (*(int *)lhs) - (*(int *)rhs);
+    return (*(int *) lhs) - (*(int *) rhs);
 }
 
 typedef struct product_t {
@@ -50,13 +50,18 @@ struct Matamazom_t {
 // TODO: sivan :) :-) :] :-] :D
 Matamazom matamazomCreate() {
     // This function will allocate memory for a new Matamazon object and return it to the user.
+    // FIXME: #1 should use different declaration that is based on the newly created types (Matamazom, ProductNode, OrderNode).
     struct Matamzom_t new = malloc(sizeof(struct Matamazom_t));
     struct product_t *newProduct = malloc(sizeof(struct product_t));
     struct order_t *newOrder = malloc(sizeof(struct order_t));
+    /** FIXME: #2 BAD CHECK: using this test we can't tell which of the allocated objects succeeded and which failed, so we don't know
+     *  which one we need to call free for
+     *  also, you didn't free any of the objects, even though at least one failed to allocated
+     * */
     if (new == NULL || newProduct == NULL || newOrder == NULL) {
         return NULL;
     }
-    new->productHead->name =NULL;
+    new->productHead->name = NULL;
     new->productCurrent = NULL; //should i put something in the fields?
     new->orderHead = NULL;
     new->orderCurrent = NULL;
@@ -75,22 +80,28 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
     // This function will create a new productNode and add it to the products linked list.
-    if (matamazom == NULL || copyData == NULL || freeData ==NULL) {
+    if (matamazom == NULL || copyData == NULL || freeData == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
+    // FIXME: #3 missing closing parentheses
+    // FIXME: #4 wrong type - this should be a ProductNode, go over the data structures again.
     Matamazom newProduct = malloc(sizeof(Matamazom);
     if (newProduct == NULL) {
         return NULL;
     }
-    newProduct->productsCurrent->name = *name;
-    newProduct->productsCurrent->id= id;
-    newProduct->productsCurrent->product= customData;
+    /** FIXME: #5 requires testing - we receive a const char*, we can't simply assign it to char* - need to either copy the string
+     * or change the type in the struct to const char*
+    */
+    // FIXME: #6 all of these allocations are wrong because again we are using the wrong type.
+    newProduct->productsCurrent->name = name;
+    newProduct->productsCurrent->id = id;
+    newProduct->productsCurrent->product = customData;
     newProduct->productsCurrent->amount = amount;
     newProduct->productsCurrent->amountType = amountType;
     newProduct->productsCurrent->copy = copyData;
     newProduct->productsCurrent->free = freeData;
     newProduct->productsCurrent->price = prodPrice;
-    newProduct->productsCurrent->next=NULL;
+    newProduct->productsCurrent->next = NULL;
 
     //how to continue???
 
@@ -109,19 +120,20 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
 
 // TODO: sivan :) :-) :] :-] :D
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
-    if(matamazom ==NULL){
+    if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
+    // FIXME: #7 wrong allocation, should be of type OrderNode.
     Matamazom newOrder = malloc(sizeof(Matamazom));
     if (newOrder = =NULL){
         return NULL;
     }
-    newOrder->ordersCurrent->next =NULL;
-    newOrder->ordersCurrent->id= matamazom->ordersCurrent->id;
-    if(  newOrder->ordersCurrent->id < 0 ){
+    newOrder->ordersCurrent->next = NULL;
+    newOrder->ordersCurrent->id = matamazom->ordersCurrent->id;
+    if (newOrder->ordersCurrent->id < 0) {
         return 0;
     }
-    return newOrder->ordersCurrent->id ;
+    return newOrder->ordersCurrent->id;
 
 }
 
@@ -142,21 +154,25 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
 
 // TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
-    if ( matamazom == NULL){
+    if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     //we need to replace the head of the list
-    if (matamazom->ordersHead->id = orderId){
-        matamazom->ordersCurrent= matamazom->ordersHead->next;
+    // FIXME: #8 bad practice, you changed the external iterator of the object for now reason. (line 163).
+    if (matamazom->ordersHead->id = orderId) {
+        matamazom->ordersCurrent = matamazom->ordersHead->next;
         free(matamazom->ordersHead);
+        // FIXME: #9 this line will assign a freed object to ordersHead - not what we want.
         matamazom->ordersHead = matamazom->ordersHead;
     }
-    matamazom->ordersCurrent= matamazom->ordersHead->next;
-    while (matamazom->ordersCurrent->id != orderId){
+    // FIXME: #9 if we already made a change, we shouldn't arrive at this piece of code, need to add a return call in previous block.
+    matamazom->ordersCurrent = matamazom->ordersHead->next;
+    // FIXME: #10 pretty sure this isn't the correct loop logic we need to use.
+    while (matamazom->ordersCurrent->id != orderId) {
         if (matamazom->ordersCurrent->next = NULL) {
             return MATAMAZOM_ORDER_NOT_EXIST;
         }
-        matamazom->ordersCurrent=matamazom->ordersCurrent->next;
+        matamazom->ordersCurrent = matamazom->ordersCurrent->next;
     }
     // dont understand of I need to free the struct..
 
