@@ -22,7 +22,7 @@ static int compareInts(ASElement lhs, ASElement rhs) {
 }
 
 typedef struct product_t {
-    char *name;
+    const char *name;
     unsigned int id;
     MtmProductData product;
     MtmCopyData copy;
@@ -47,25 +47,14 @@ struct Matamazom_t {
     OrderNode ordersCurrent;
 };
 
-// TODO: sivan :) :-) :] :-] :D
 Matamazom matamazomCreate() {
-    // This function will allocate memory for a new Matamazon object and return it to the user.
-    // FIXME: #1 should use different declaration that is based on the newly created types (Matamazom, ProductNode, OrderNode).
-    struct Matamzom_t new = malloc(sizeof(struct Matamazom_t));
-    struct product_t *newProduct = malloc(sizeof(struct product_t));
-    struct order_t *newOrder = malloc(sizeof(struct order_t));
-    /** FIXME: #2 BAD CHECK: using this test we can't tell which of the allocated objects succeeded and which failed, so we don't know
-     *  which one we need to call free for
-     *  also, you didn't free any of the objects, even though at least one failed to allocated
-     * */
-    if (new == NULL || newProduct == NULL || newOrder == NULL) {
+    Matamazom matamazom = malloc(sizeof(*matamazom));
+//    OrderNode newOrder = malloc(sizeof(*newOrder));
+    if (matamazom == NULL) {
         return NULL;
     }
-    new->productHead->name = NULL;
-    new->productCurrent = NULL; //should i put something in the fields?
-    new->orderHead = NULL;
-    new->orderCurrent = NULL;
-    return new;
+
+    return matamazom;
 }
 
 
@@ -74,39 +63,59 @@ void matamazomDestroy(Matamazom matamazom) {
     // and then do the same for the matamazom object
 }
 
-// TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
-    // This function will create a new productNode and add it to the products linked list.
-    if (matamazom == NULL || copyData == NULL || freeData == NULL) {
+    if (matamazom == NULL || name == NULL || customData == NULL ||
+        copyData == NULL || freeData == NULL || prodPrice == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    // FIXME: #3 missing closing parentheses
-    // FIXME: #4 wrong type - this should be a ProductNode, go over the data structures again.
-    Matamazom newProduct = malloc(sizeof(Matamazom);
+
+    ProductNode newProduct = malloc(sizeof(*newProduct));
     if (newProduct == NULL) {
-        return NULL;
+        return MATAMAZOM_OUT_OF_MEMORY;
     }
-    /** FIXME: #5 requires testing - we receive a const char*, we can't simply assign it to char* - need to either copy the string
-     * or change the type in the struct to const char*
-    */
-    // FIXME: #6 all of these allocations are wrong because again we are using the wrong type.
-    newProduct->productsCurrent->name = name;
-    newProduct->productsCurrent->id = id;
-    newProduct->productsCurrent->product = customData;
-    newProduct->productsCurrent->amount = amount;
-    newProduct->productsCurrent->amountType = amountType;
-    newProduct->productsCurrent->copy = copyData;
-    newProduct->productsCurrent->free = freeData;
-    newProduct->productsCurrent->price = prodPrice;
-    newProduct->productsCurrent->next = NULL;
 
-    //how to continue???
+    newProduct->product = copyData(customData);
+    if (newProduct->product == NULL) {
+        free(newProduct);
+        return MATAMAZOM_OUT_OF_MEMORY;
+    }
+    newProduct->name = name;
+    newProduct->id = id;
+    newProduct->amount = amount;
+    newProduct->amountType = amountType;
+    newProduct->copy = copyData;
+    newProduct->free = freeData;
+    newProduct->price = prodPrice;
+    newProduct->next = NULL;
 
-    return newProduct;
+    if (matamazom->productsHead == NULL) {
+        matamazom->productsHead = newProduct;
+        return MATAMAZOM_SUCCESS;
+    }
 
+    if (id < matamazom->productsHead->id) {
+        newProduct->next = matamazom->productsHead;
+        matamazom->productsHead = newProduct;
+        return MATAMAZOM_SUCCESS;
+    }
+
+    ProductNode current = matamazom->productsHead;
+    ProductNode previous = current;
+
+    while (current != NULL) {
+        if (newProduct->id < current->id) {
+            previous->next = newProduct;
+            newProduct->next = current;
+            return MATAMAZOM_SUCCESS;
+        }
+        previous = current;
+        current = current->next;
+    }
+    previous->next = newProduct;
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount) {

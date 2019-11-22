@@ -22,20 +22,20 @@ struct AmountSet_t {
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
-    AmountSet as = calloc(1, sizeof(*as));
-    if (as == NULL ||
+    AmountSet set = calloc(1, sizeof(*set));
+    if (set == NULL ||
         copyElement == NULL ||
         freeElement == NULL ||
         compareElements == NULL) {
         return NULL;
     }
-    as->head = NULL;
-    as->current = NULL;
-    as->copy = copyElement;
-    as->free = freeElement;
-    as->compare = compareElements;
+    set->head = NULL;
+    set->current = NULL;
+    set->copy = copyElement;
+    set->free = freeElement;
+    set->compare = compareElements;
 
-    return as;
+    return set;
 }
 
 void asDestroy(AmountSet set) {
@@ -63,41 +63,41 @@ AmountSet asCopy(AmountSet set) {
         return NULL;
     }
 
-    AmountSet as = asCreate(set->copy, set->free, set->compare);
-    if (as == NULL) {
+    AmountSet copiedSet = asCreate(set->copy, set->free, set->compare);
+    if (copiedSet == NULL) {
         return NULL;
     }
 
     if (set->head == NULL) {
         // linked list in original set is empty, so we can return.
-        return as;
+        return copiedSet;
     }
     ElementNode current = set->head;
     ElementNode newNode = calloc(1, sizeof(*newNode));
     if (newNode == NULL) {
-        asDestroy(as);
+        asDestroy(copiedSet);
         return NULL;
     }
     newNode->element = set->copy(current->element);
     if (newNode->element == NULL) {
         free(newNode);
-        asDestroy(as);
+        asDestroy(copiedSet);
         return NULL;
     }
     newNode->amount = current->amount;
-    as->head = newNode;
+    copiedSet->head = newNode;
     ElementNode previous = newNode;
     current = current->next;
     while (current != NULL) {
         newNode = calloc(1, sizeof(*newNode));
         if (newNode == NULL) {
-            asDestroy(as);
+            asDestroy(copiedSet);
             return NULL;
         }
         newNode->element = set->copy(current->element);
         if (newNode->element == NULL) {
             free(newNode);
-            asDestroy(as);
+            asDestroy(copiedSet);
             return NULL;
         }
         newNode->amount = current->amount;
@@ -106,7 +106,7 @@ AmountSet asCopy(AmountSet set) {
         current = current->next;
     }
 
-    return as;
+    return copiedSet;
 }
 
 int asGetSize(AmountSet set) {
