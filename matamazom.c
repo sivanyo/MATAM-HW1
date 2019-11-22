@@ -48,7 +48,7 @@ struct Matamazom_t {
 };
 
 // custom functions for internal use
-static bool warehouseContainsProduct(Matamazom matamazom, unsigned int id) {
+static bool warehouseContainsProduct(Matamazom matamazom, const unsigned int id) {
     ProductNode tempProduct;
     tempProduct = matamazom->productsHead;
     while (tempProduct != NULL) {
@@ -60,7 +60,7 @@ static bool warehouseContainsProduct(Matamazom matamazom, unsigned int id) {
     return false;
 }
 
-static bool warehouseContainsOrder(Matamazom matamazom, unsigned int id) {
+static bool warehouseContainsOrder(Matamazom matamazom,const unsigned int id) {
     OrderNode tempOrder;
     tempOrder = matamazom->ordersHead;
     while (tempOrder != NULL) {
@@ -145,13 +145,63 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
 
 // TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount) {
-    // This function will find the product in the linked list and upate it's amount accordingly.
+    if(matamazom==NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if (amount==0){
+        return MATAMAZOM_SUCCESS;
+    }
+    ProductNode temp = matamazom->productsHead;
+    while(temp != NULL){
+        if(temp->id==id){
+            if (amount > 0){
+                temp->amount += amount;
+                return MATAMAZOM_SUCCESS;
+            }
+            else if((temp->amount - amount) >= 0 ) {
+                temp->amount += amount;
+                return MATAMAZOM_SUCCESS;
+            }
+            else{
+                return MATAMAZOM_INSUFFICIENT_AMOUNT;
+            }
+        }
+        temp = temp->next;
+    }
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
 }
 
 // TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
-    // This function will remove a productNode from the linked list
-    // and also remove the product from all active orders which include it.
+    if (matamazom == NULL){
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+
+    if (!warehouseContainsProduct(id)){
+        return MATAMAZOM_PRODUCT_NOT_EXIST;
+    }
+
+    if (matamazom->productsHead->id == id){
+        ProductNode temp = matamazom->productsHead;
+        matamazom->productsHead=temp->next;
+        free(temp);
+    }
+
+    ProductNode previous = matamazom->productsHead;
+    ProductNode nextProduct = previous->next;
+
+    while (nextProduct != NULL){
+        if(nextProduct->id == id){
+            previous->next = nextProduct->next;
+            free(nextProduct);
+            return MATAMAZOM_SUCCESS;
+        }
+        previous=previous->next;
+        nextProduct=nextProduct->next;
+    }
+
+    //product has been deleted, how should I change the income and the orders?
+
 }
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
@@ -177,14 +227,21 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         temp = temp->next;
     }
 }
-
+//
 // TODO: sivan :) :-) :] :-] :D
+
     MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                                                   const unsigned int productId, const double amount) {
-        // This function will change the amount of a produt in the order,
-        // if the product doesn't exist, a correct error code will be returned,
-        // if the amount of the product decreases to 0 or less, the product will be removed
-        // from the order.
+        if (matamazom==NULL){
+            return MATAMAZOM_NULL_ARGUMENT;
+        }
+        OrderNode temp= matamazom->ordersHead;
+        while(temp!=NULL){
+            if(temp->id==orderId){
+
+            }
+        }
+
     }
 
 // TODO: sivan :) :-) :] :-] :D
