@@ -84,8 +84,23 @@ Matamazom matamazomCreate() {
 
 // TODO: sivan :) :-) :] :-] :D
 void matamazomDestroy(Matamazom matamazom) {
-    // This function will iterate over the linked lists for products and orders and free them
-    // and then do the same for the matamazom object
+    free(matamazom->productsCurrent);
+    ProductNode tempProduct=matamazom->productsHead;
+    ProductNode ProductToDelete =matamazom->productsHead;
+    while(tempProduct!=NULL){
+        tempProduct=tempProduct->next;
+        free(ProductToDelete);
+        ProductNode toDelete = tempProduct;
+    }
+
+    free(matamazom->ordersCurrent);
+    OrderNode tempOrder=matamazom->ordersHead;
+    OrderNode OrderToDelete =matamazom->ordersHead;
+    while(tempOrder!=NULL){
+        tempOrder=tempOrder->next;
+        free(OrderToDelete);
+        ProductNode toDelete = tempOrder;
+    }
 }
 
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
@@ -222,7 +237,7 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         if (temp->next == NULL) {
             newOrder->id = temp->id + 1;
             temp->next = newOrder;
-            return newOrder->id;
+            return newOrder;
         }
         temp = temp->next;
     }
@@ -238,7 +253,8 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         OrderNode temp= matamazom->ordersHead;
         while(temp!=NULL){
             if(temp->id==orderId){
-
+                ProductNode tempProduct =temp->orderProducts;
+                //how to use amountset?
             }
         }
 
@@ -256,25 +272,25 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         if (matamazom == NULL) {
             return MATAMAZOM_NULL_ARGUMENT;
         }
-        //we need to replace the head of the list
-        // FIXME: #8 bad practice, you changed the external iterator of the object for now reason. (line 163).
         if (matamazom->ordersHead->id = orderId) {
-            matamazom->ordersCurrent = matamazom->ordersHead->next;
-            free(matamazom->ordersHead);
-            // FIXME: #9 this line will assign a freed object to ordersHead - not what we want.
-            matamazom->ordersHead = matamazom->ordersHead;
+            OrderNode temp = matamazom->ordersHead;
+            matamazom->ordersHead=temp->next;
+            free(temp);
+            return MATAMAZOM_SUCCESS;
         }
-        // FIXME: #9 if we already made a change, we shouldn't arrive at this piece of code, need to add a return call in previous block.
-        matamazom->ordersCurrent = matamazom->ordersHead->next;
-        // FIXME: #10 pretty sure this isn't the correct loop logic we need to use.
-        while (matamazom->ordersCurrent->id != orderId) {
-            if (matamazom->ordersCurrent->next = NULL) {
-                return MATAMAZOM_ORDER_NOT_EXIST;
+        OrderNode previous = matamazom->ordersHead;
+        OrderNode nextProduct = previous->next;
+        while (previous!=NULL) {
+            if (nextProduct->id == orderId) {
+                previous->next=nextProduct->next;
+                free(nextProduct);
+                return MATAMAZOM_SUCCESS;
             }
-            matamazom->ordersCurrent = matamazom->ordersCurrent->next;
+            previous= previous->next;
+            nextProduct=nextProduct->next;
         }
-        // dont understand of I need to free the struct..
 
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
     }
 
     MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
