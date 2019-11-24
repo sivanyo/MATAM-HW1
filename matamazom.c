@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
 #include "matamazom.h"
 #include "amount_set.h"
 
@@ -44,9 +45,7 @@ typedef struct order_t {
 
 struct Matamazom_t {
     ProductNode productsHead;
-    ProductNode productsCurrent;
     OrderNode ordersHead;
-    OrderNode ordersCurrent;
 };
 
 // custom functions for internal use
@@ -100,6 +99,22 @@ static bool removeProductFromOrders(Matamazom matamazom, const unsigned int id) 
     return true;
 }
 
+static bool checkLegalName (const char* name){
+    if (strlen(name) == 0){
+        return false;
+    } else if ((name[0]>='a' && name[0]<= 'z') || (name[0]>='A' && name[0]<= 'Z')){
+        return true;
+    } else if (name[0]>='0' && name[0]<='9'){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static bool checkAmountType(double amount, const MatamazomAmountType amountType){
+    
+}
+
 /**
  * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
  * in the amount set accordingly, the logic is identical to the one in mtmChangeProductAmountInOrder.
@@ -145,28 +160,31 @@ Matamazom matamazomCreate() {
     return matamazom;
 }
 
-// TODO: sivan :) :-) :] :-] :D
 void matamazomDestroy(Matamazom matamazom) {
-    free(matamazom->productsCurrent);
+    if (matamazom == NULL) {
+        return;
+    }
+
     ProductNode tempProduct = matamazom->productsHead;
-    ProductNode ProductToDelete = matamazom->productsHead;
+    ProductNode productToDelete = matamazom->productsHead;
     while (tempProduct != NULL) {
         tempProduct = tempProduct->next;
-        free(ProductToDelete);
-        ProductNode toDelete = tempProduct;
+        free(productToDelete);
+        productToDelete = tempProduct;
     }
 
-    free(matamazom->ordersCurrent);
     OrderNode tempOrder = matamazom->ordersHead;
-    OrderNode OrderToDelete = matamazom->ordersHead;
+    OrderNode orderToDelete = matamazom->ordersHead;
     while (tempOrder != NULL) {
         tempOrder = tempOrder->next;
-        free(OrderToDelete);
-        ProductNode toDelete = tempOrder;
+        asDestroy(orderToDelete->orderProducts);
+        free(orderToDelete);
+        orderToDelete = tempOrder;
     }
+    free(matamazom);
+    matamazom = NULL;
 }
 
-// FIXME: add checks for legal product name
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
@@ -176,9 +194,16 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_NULL_ARGUMENT;
     }
 
+    if (!checkLegalName(name)) {
+        return MATAMAZOM_INVALID_NAME;
+    }
+
     ProductNode newProduct = malloc(sizeof(*newProduct));
     if (newProduct == NULL) {
         return MATAMAZOM_OUT_OF_MEMORY;
+    }
+    if (amount>0) {
+        return MATAMAZOM_INVALID_AMOUNT;
     }
 
     newProduct->product = copyData(customData);
@@ -287,7 +312,7 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
         return 0;
     }
 
-    newOrder->orderProducts = asCreate(copyInt, freeInt,compareInts);
+    newOrder->orderProducts = asCreate(copyInt, freeInt, compareInts);
 
     if (matamazom->ordersHead == NULL) {
         newOrder->id = 1;
@@ -337,14 +362,19 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     // for each product and then delete the order
 }
 
-// TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
-    if (matamazom->ordersHead->id = orderId) {
+
+    if (!warehouseContainsOrder(matamazom, orderId)) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+
+    if (matamazom->ordersHead->id == orderId) {
         OrderNode temp = matamazom->ordersHead;
         matamazom->ordersHead = temp->next;
+        asDestroy(temp->orderProducts);
         free(temp);
         return MATAMAZOM_SUCCESS;
     }
@@ -353,14 +383,15 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) 
     while (previous != NULL) {
         if (nextProduct->id == orderId) {
             previous->next = nextProduct->next;
+            asDestroy(nextProduct->orderProducts);
             free(nextProduct);
             return MATAMAZOM_SUCCESS;
         }
         previous = previous->next;
         nextProduct = nextProduct->next;
     }
-
-    return MATAMAZOM_PRODUCT_NOT_EXIST;
+    // Shouldn't get here.
+    return MATAMAZOM_ORDER_NOT_EXIST;
 }
 
 MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
