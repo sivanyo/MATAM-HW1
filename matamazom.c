@@ -112,7 +112,15 @@ static bool checkLegalName (const char* name){
 }
 
 static bool checkAmountType(double amount, const MatamazomAmountType amountType){
-    
+    /*
+     * Base for checks of legal type
+     * if (floor(amount) == amount || floor(amount) + HALF_OFFSET == amount ||
+floor(amount) + HALF_OFFSET + OFFSET = amount || floor(amount) + HALF_OFFSET - OFFSET = amount ||
+floor(amount) + OFFSET == amount || ceil(amount) - OFFSET = amount)
+else if (floor(amount) == amount || floor(amount) + OFFSET == amount || ceil(amount) - OFFSET = amount || floor(amount) + HALF_OFFSET + OFFSET == amount
+|| floor(amount) + HALF_OFFSET - OFFSET == amount || floor()
+
+     */
 }
 
 /**
@@ -185,6 +193,7 @@ void matamazomDestroy(Matamazom matamazom) {
     matamazom = NULL;
 }
 
+// FIXME: complete legal checks for amount type
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
