@@ -162,18 +162,20 @@ static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int
     return MATAMAZOM_SUCCESS;
 }
 
-static MatamazomAmountType getAmountTypeByProductId (Matamazom matamazom, const unsigned int id) {
+static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const unsigned int id) {
     ProductNode current = matamazom->productsHead;
-    while (current!=NULL) {
-        if (current->id==id){
+    while (current != NULL) {
+        if (current->id == id) {
             return current->amountType;
         }
-        current=current->next;
+        current = current->next;
     }
     return NULL;
 }
 
-static double getPrice()
+double basicGetPrice(MtmProductData basePrice, double amount) {
+    return (*(double *) basePrice) * amount;
+}
 
 /**
  * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
@@ -411,13 +413,13 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
             }
             MatamazomAmountType type;
             ProductNode temp = matamazom->productsHead;
-            while (temp!=NULL) {
+            while (temp != NULL) {
                 if (temp->id == productId) {
                     type = temp->amountType;
                 }
                 current = current->next;
             }
-            if(!checkAmountType(amount, type)) {
+            if (!checkAmountType(amount, type)) {
                 return MATAMAZOM_INVALID_AMOUNT;
             }
             AmountSet productsSet = current->orderProducts;
@@ -430,9 +432,23 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
 
 // TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
-    // This function will check that the inventory in the products linked list
-    // is able to ship the required order, will update the income and the inventory
-    // for each product and then delete the order
+    // Check that warehouse has enough inventory
+    // Remove products from inventory and calculate income
+    // remove order.
+    if (matamazom == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if (!warehouseContainsOrder(matamazom, orderId)) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    OrderNode current = matamazom->ordersHead;
+    while (current->id != orderId) {
+        current = current->next;
+    }
+    // need to go over products in order and check that there is enough inventory
+    // and then remove products and order.
+
+
 }
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
