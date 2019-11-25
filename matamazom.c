@@ -405,10 +405,13 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int i
     ProductNode current = matamazom->productsHead;
     while (current != NULL) {
         if (current->id == id) {
+            if(!checkAmountType(amount, current->amountType)) {
+                return MATAMAZOM_INVALID_AMOUNT;
+            }
             if (amount >= 0) {
                 current->amount += amount;
                 return MATAMAZOM_SUCCESS;
-            } else if ((current->amount - amount) >= 0) {
+            } else if ((current->amount + amount) >= 0) {
                 current->amount += amount;
                 return MATAMAZOM_SUCCESS;
             } else {
