@@ -4,10 +4,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "matamazom.h"
 #include "amount_set.h"
 
-#define OFFSET 0.01
+#define FULL_OFFSET 0.01
+#define HALF_OFFSET 0.5
 
 /** Static functions to handle ids inside product linked list */
 static ASElement copyInt(ASElement number) {
@@ -99,28 +101,65 @@ static bool removeProductFromOrders(Matamazom matamazom, const unsigned int id) 
     return true;
 }
 
-static bool checkLegalName (const char* name){
-    if (strlen(name) == 0){
+static bool checkLegalName(const char *name) {
+    if (strlen(name) == 0) {
         return false;
-    } else if ((name[0]>='a' && name[0]<= 'z') || (name[0]>='A' && name[0]<= 'Z')){
+    } else if ((name[0] >= 'a' && name[0] <= 'z') || (name[0] >= 'A' && name[0] <= 'Z')) {
         return true;
-    } else if (name[0]>='0' && name[0]<='9'){
+    } else if (name[0] >= '0' && name[0] <= '9') {
         return true;
     } else {
         return false;
     }
 }
 
-static bool checkAmountType(double amount, const MatamazomAmountType amountType){
-    /*
-     * Base for checks of legal type
-     * if (floor(amount) == amount || floor(amount) + HALF_OFFSET == amount ||
-floor(amount) + HALF_OFFSET + OFFSET = amount || floor(amount) + HALF_OFFSET - OFFSET = amount ||
-floor(amount) + OFFSET == amount || ceil(amount) - OFFSET = amount)
-else if (floor(amount) == amount || floor(amount) + OFFSET == amount || ceil(amount) - OFFSET = amount || floor(amount) + HALF_OFFSET + OFFSET == amount
-|| floor(amount) + HALF_OFFSET - OFFSET == amount || floor()
+/**
+ * Function to check if the provided amount matches the AmountType specified.
+ */
+static bool checkAmountType(double amount, const MatamazomAmountType amountType) {
+    // Checking if number is a legal full int
+    if (amountType == MATAMAZOM_INTEGER_AMOUNT) {
+        if (floor(amount) == amount || floor(amount) + FULL_OFFSET == amount ||
+            ceil(amount) - FULL_OFFSET == amount) {
+            return true;
+        }
+        return false;
+    } else if (amountType == MATAMAZOM_HALF_INTEGER_AMOUNT) {
+        if (floor(amount) == amount || floor(amount) + FULL_OFFSET == amount ||
+            ceil(amount) - FULL_OFFSET == amount ||
+            floor(amount) + HALF_OFFSET == amount ||
+            floor(amount) + HALF_OFFSET + FULL_OFFSET == amount ||
+            floor(amount) + HALF_OFFSET - FULL_OFFSET == amount) {
+            return true;
+        }
+        return false;
+    } else {
+        return true;
+    }
+}
 
-     */
+static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int id, const char *name,
+                                         const double amount, const MatamazomAmountType amountType,
+                                         const MtmProductData customData, MtmCopyData copyData,
+                                         MtmFreeData freeData, MtmGetProductPrice prodPrice) {
+    if (matamazom == NULL || name == NULL || customData == NULL ||
+        copyData == NULL || freeData == NULL || prodPrice == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+
+    if (!checkLegalName(name)) {
+        return MATAMAZOM_INVALID_NAME;
+    }
+
+    if (amount < 0 || !checkAmountType(amount, amountType)) {
+        return MATAMAZOM_INVALID_AMOUNT;
+    }
+
+    if (warehouseContainsProduct(matamazom, id)) {
+        return MATAMAZOM_PRODUCT_ALREADY_EXIST;
+    }
+
+    return MATAMAZOM_SUCCESS;
 }
 
 /**
@@ -193,26 +232,22 @@ void matamazomDestroy(Matamazom matamazom) {
     matamazom = NULL;
 }
 
-// FIXME: complete legal checks for amount type
 MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
-    if (matamazom == NULL || name == NULL || customData == NULL ||
-        copyData == NULL || freeData == NULL || prodPrice == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
-    }
+    MatamazomResult checksResult = validProductCheck(matamazom, id, *name,
+                                                     amount, amountType,
+                                                     customData, copyData,
+                                                     freeData, prodPrice);
 
-    if (!checkLegalName(name)) {
-        return MATAMAZOM_INVALID_NAME;
+    if (checksResult != MATAMAZOM_SUCCESS) {
+        return checksResult;
     }
 
     ProductNode newProduct = malloc(sizeof(*newProduct));
     if (newProduct == NULL) {
         return MATAMAZOM_OUT_OF_MEMORY;
-    }
-    if (amount>0) {
-        return MATAMAZOM_INVALID_AMOUNT;
     }
 
     newProduct->product = copyData(customData);
