@@ -173,9 +173,10 @@ static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const u
     return NULL;
 }
 
-double basicGetPrice(MtmProductData basePrice, double amount) {
+static double basicGetPrice(MtmProductData basePrice, double amount) {
     return (*(double *) basePrice) * amount;
 }
+
 
 /**
  * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
@@ -221,7 +222,7 @@ static double getProductAmount(Matamazom matamazom, const unsigned int id) {
         return -1;
     }
     ProductNode current = matamazom->productsHead;
-    while(current != NULL) {
+    while (current != NULL) {
         if (current->id == id) {
             return current->amount;
         }
@@ -230,6 +231,62 @@ static double getProductAmount(Matamazom matamazom, const unsigned int id) {
 
     // Shouldn't get here.
     return -1;
+}
+
+static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned int id, double income) {
+    if (matamazom == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+
+    ProductNode current = matamazom->productsHead;
+    while (current != NULL) {
+        if (current->id == id) {
+            current->income += income;
+            return MATAMAZOM_SUCCESS;
+        }
+        current = current->next;
+    }
+    return MATAMAZOM_PRODUCT_NOT_EXIST;
+}
+
+static MtmGetProductPrice getProductPriceFunction(Matamazom matamazom, const unsigned int id) {
+    if (matamazom == NULL) {
+        return NULL;
+    }
+    ProductNode current = matamazom->productsHead;
+    while (current != NULL) {
+        if (current->id == id) {
+            return current->price;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned int id) {
+    if (matamazom == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+
+    if (matamazom->ordersHead->id == id) {
+        OrderNode temp = matamazom->ordersHead;
+        matamazom->ordersHead = temp->next;
+        free(temp);
+        return MATAMAZOM_SUCCESS;
+    }
+    OrderNode previous = matamazom->ordersHead;
+    OrderNode nextProduct = previous->next;
+    while (previous != NULL) {
+        if (nextProduct->id == id) {
+            previous->next = nextProduct->next;
+            free(nextProduct);
+            return MATAMAZOM_SUCCESS;
+        }
+        previous = previous->next;
+        nextProduct = nextProduct->next;
+    }
+    // Shouldn't get here.
+    return MATAMAZOM_ORDER_NOT_EXIST;
 }
 
 Matamazom matamazomCreate() {
@@ -450,11 +507,7 @@ MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigne
 
 }
 
-// TODO: sivan :) :-) :] :-] :D
 MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
-    // Check that warehouse has enough inventory
-    // Remove products from inventory and calculate income
-    // remove order.
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -465,25 +518,30 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     while (current->id != orderId) {
         current = current->next;
     }
-    OrderNode temp = current;
-    //now current is the order we need to check
+
+    double tempAmount = 0;
     int productId = (int) asGetFirst(current->orderProducts);
-
     while (productId != (int) NULL) {
-        double tempAmount = 0;
-        if (asGetAmount(current->orderProducts, &productId, &tempAmount) == AS_SUCCESS) {
-
+        asGetAmount(current->orderProducts, &productId, &tempAmount);
+        if (getProductAmount(matamazom, productId) - tempAmount < 0) {
+            return MATAMAZOM_INSUFFICIENT_AMOUNT;
         }
         productId = (int) asGetNext(current->orderProducts);
     }
-    double *amount = NULL;
-    asGetAmount(temp->orderProducts,)
-}
 
-// need to go over products in order and check that there is enough inventory
-// and then remove products and order.
-
-
+    productId = (int) asGetFirst(current->orderProducts);
+    while (productId != (int) NULL) {
+        asGetAmount(current->orderProducts, &productId, &tempAmount);
+        mtmChangeProductAmount(matamazom, productId, -(tempAmount));
+        double income =
+                basicGetPrice(getProductPriceFunction(matamazom, productId),
+                              tempAmount);
+        changeProductIncome(matamazom, productId, income);
+        productId = (int) asGetNext(current->orderProducts);
+    }
+    asDestroy(current->orderProducts);
+    removeShippedOrder(matamazom, orderId);
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
