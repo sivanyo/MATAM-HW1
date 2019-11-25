@@ -171,7 +171,8 @@ static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const u
         }
         current = current->next;
     }
-    return NULL;
+    // TODO: check that this works
+    return MATAMAZOM_ANY_AMOUNT;
 }
 
 static double basicGetPrice(MtmProductData basePrice, double amount) {
