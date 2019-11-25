@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include "matamazom.h"
+#include "matamazom_print.h"
 #include "amount_set.h"
 
 #define FULL_OFFSET 0.01
@@ -175,6 +176,17 @@ static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const u
 
 static double basicGetPrice(MtmProductData basePrice, double amount) {
     return (*(double *) basePrice) * amount;
+}
+
+static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
+    if (matamazom == NULL) {
+        return NULL;
+    }
+    ProductNode current = matamazom->productsHead;
+    while (current->id != id) {
+        current = current->next;
+    }
+    return current;
 }
 
 
@@ -577,20 +589,76 @@ MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) 
 }
 
 MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
-    // This fucntion will recieve a mtmzon and ouput file and will use the
-    // provided print function to print the contents of the products inventory
-    // to the file.
+    if (matamazom == NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    ProductNode current = matamazom->productsHead;
+    double price = 0;
+    fprintf(output, "Inventory Status:\n");
+    while (current != NULL) {
+        price = basicGetPrice(getProductPriceFunction(matamazom, current->id), 1);
+        mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
+        current = current->next;
+    }
+
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the built in print functions to print the contents of the orders
-    // list to the file
+    if (matamazom == NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    if (!warehouseContainsOrder(matamazom, orderId)) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+    mtmPrintOrderHeading(orderId, output);
+    OrderNode order = matamazom->ordersHead;
+    while (order->id != orderId) {
+        order = order->next;
+    }
+    double tempAmount = 0;
+    double total = 0;
+    int productId = (int) asGetFirst(order->orderProducts);
+    while (productId != (int) NULL) {
+        asGetAmount(order->orderProducts, &productId, &tempAmount);
+        ProductNode product = getProductById(matamazom, productId);
+        double productTotalPrice = basicGetPrice(product->price, tempAmount);
+        total += productTotalPrice;
+        mtmPrintProductDetails(product->name, product->id,
+                               product->amount, productTotalPrice, output);
+        productId = (int) asGetNext(order);
+    }
+    mtmPrintOrderSummary(total, output);
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     // This function will receive a mtmzon and output file and will use
     // the built in print function to print the best selling product.
+    if (matamazom == NULL || output == NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    fprintf(output, "Best Selling Product:\n");
+    ProductNode current = matamazom->productsHead;
+    char *name = "";
+    double maxIncome = 0;
+    unsigned int maxProductId = 0;
+    while (current != NULL) {
+        if (current->income > maxIncome) {
+            maxIncome = current->income;
+            maxProductId = current->id;
+            name = current->name;
+        }
+        current = current->next;
+    }
+
+    if (maxProductId == 0) {
+        fprintf(output, "none\n");
+    } else {
+        mtmPrintIncomeLine(name, maxProductId, maxIncome, output);
+    }
+
+    return MATAMAZOM_SUCCESS;
 }
 
 MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
