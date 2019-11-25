@@ -633,8 +633,6 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
 }
 
 MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the built in print function to print the best selling product.
     if (matamazom == NULL || output == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -662,7 +660,18 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
 }
 
 MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
-    // This function will receive a mtmzon and output file and will use
-    // the provided filter function to filter the products inventory,
-    // and then use the built in print function to print each product to a file.
+    if (matamazom == NULL || output == NULL || customFilter != NULL) {
+        return MATAMAZOM_NULL_ARGUMENT;
+    }
+    ProductNode current = matamazom->productsHead;
+    double price = 0;
+    while (current != NULL) {
+        if (customFilter(current->id, current->name, current->amount, current->product)) {
+            price = basicGetPrice(getProductPriceFunction(matamazom, current->id), 1);
+            mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
+        }
+        current = current->next;
+    }
+
+    return MATAMAZOM_SUCCESS;
 }
