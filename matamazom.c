@@ -212,6 +212,26 @@ MatamazomResult changeAmountOfProductInSet(AmountSet set, const unsigned int pro
     }
 }
 
+/**
+ * This function recieves a matamazon warehouse and product ID and returns the amount
+ * of that product in the warehouse.
+ */
+static double getProductAmount(Matamazom matamazom, const unsigned int id) {
+    if (matamazom == NULL) {
+        return -1;
+    }
+    ProductNode current = matamazom->productsHead;
+    while(current != NULL) {
+        if (current->id == id) {
+            return current->amount;
+        }
+        current = current->next;
+    }
+
+    // Shouldn't get here.
+    return -1;
+}
+
 Matamazom matamazomCreate() {
     Matamazom matamazom = malloc(sizeof(*matamazom));
 //    OrderNode newOrder = malloc(sizeof(*newOrder));
@@ -445,8 +465,23 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     while (current->id != orderId) {
         current = current->next;
     }
-    // need to go over products in order and check that there is enough inventory
-    // and then remove products and order.
+    OrderNode temp = current;
+    //now current is the order we need to check
+    int productId = (int) asGetFirst(current->orderProducts);
+
+    while (productId != (int) NULL) {
+        double tempAmount = 0;
+        if (asGetAmount(current->orderProducts, &productId, &tempAmount) == AS_SUCCESS) {
+
+        }
+        productId = (int) asGetNext(current->orderProducts);
+    }
+    double *amount = NULL;
+    asGetAmount(temp->orderProducts,)
+}
+
+// need to go over products in order and check that there is enough inventory
+// and then remove products and order.
 
 
 }
