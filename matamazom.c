@@ -162,6 +162,19 @@ static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int
     return MATAMAZOM_SUCCESS;
 }
 
+static MatamazomAmountType getAmountTypeByProductId (Matamazom matamazom, const unsigned int id) {
+    ProductNode current = matamazom->productsHead;
+    while (current!=NULL) {
+        if (current->id==id){
+            return current->amountType;
+        }
+        current=current->next;
+    }
+    return NULL;
+}
+
+static double getPrice()
+
 /**
  * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
  * in the amount set accordingly, the logic is identical to the one in mtmChangeProductAmountInOrder.
@@ -236,7 +249,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
                               const double amount, const MatamazomAmountType amountType,
                               const MtmProductData customData, MtmCopyData copyData,
                               MtmFreeData freeData, MtmGetProductPrice prodPrice) {
-    MatamazomResult checksResult = validProductCheck(matamazom, id, *name,
+    MatamazomResult checksResult = validProductCheck(matamazom, id, name,
                                                      amount, amountType,
                                                      customData, copyData,
                                                      freeData, prodPrice);
@@ -262,6 +275,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->copy = copyData;
     newProduct->free = freeData;
     newProduct->price = prodPrice;
+    newProduct->income = 0;
     newProduct->next = NULL;
 
     if (matamazom->productsHead == NULL) {
@@ -378,25 +392,40 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     return 0;
 }
 
-// TODO: this function will require testing
-// FIXME: we still didn't address whether the amount is legal according to amount type.
 MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
                                               const unsigned int productId, const double amount) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
 
+    if (!warehouseContainsOrder(matamazom, orderId)) {
+        return MATAMAZOM_ORDER_NOT_EXIST;
+    }
+
     OrderNode current = matamazom->ordersHead;
     while (current != NULL) {
         if (current->id == orderId) {
             // We found the order we need to update.
+            if (!asContains(current->orderProducts, productId)) {
+                return MATAMAZOM_PRODUCT_NOT_EXIST;
+            }
+            MatamazomAmountType type;
+            ProductNode temp = matamazom->productsHead;
+            while (temp!=NULL) {
+                if (temp->id == productId) {
+                    type = temp->amountType;
+                }
+                current = current->next;
+            }
+            if(!checkAmountType(amount, type)) {
+                return MATAMAZOM_INVALID_AMOUNT;
+            }
             AmountSet productsSet = current->orderProducts;
             return changeAmountOfProductInSet(productsSet, productId, amount);
         }
         current = current->next;
     }
 
-    return MATAMAZOM_ORDER_NOT_EXIST;
 }
 
 // TODO: sivan :) :-) :] :-] :D
