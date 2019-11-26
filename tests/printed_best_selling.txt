@@ -1,0 +1,2 @@
+Best Selling Product:
+name: Onion, id: 6, total income: 0.000

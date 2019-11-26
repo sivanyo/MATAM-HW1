@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "amount_set.h"
+#include "matamazom.h"
 
 static ASElement copyInt(ASElement number) {
     int *copy = malloc(sizeof(*copy));
@@ -31,28 +32,11 @@ static void addElements(AmountSet set) {
 }
 
 int main() {
-    AmountSet set = asCreate(copyInt, freeInt, compareInts);
-    addElements(set);
-    asClear(set);
-    int x = 8, y = 3;
-    asRegister(set, &x);
-    asChangeAmount(set, &x, x);
-    asRegister(set, &y);
-    asChangeAmount(set, &y, y);
-    asClear(set);
-//    int x=1,y=2,z=4,h=3;
-//    asRegister(set, &x);
-//    asChangeAmount(set, &x, 1);
-//    asRegister(set, &y);
-//    asChangeAmount(set, &y, 2);
-//    asRegister(set, &z);
-//    asChangeAmount(set, &z, 4);
-//    asRegister(set, &x);
-//    asChangeAmount(set, &x, 1);
-//    asRegister(set, &h);
-//    asChangeAmount(set, &h, 3);
-//    asDelete(set, &x);
-//    asDelete(set, &h);
-//    asDelete(set, &z);
+//    Matamazom mtz = matamazomCreate();
+//    unsigned int orderId = mtmCreateNewOrder(mtz);
+//    MatamazomResult check = mtmCancelOrder(mtz, orderId);
+//    FILE* test = fopen("./test.txt", "w");
+//    fprintf(test, "hello");
+//    fclose(test);
     return 0;
 }
