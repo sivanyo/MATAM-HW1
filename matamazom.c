@@ -171,13 +171,8 @@ static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const u
         }
         current = current->next;
     }
-    // TODO: check that this works
     return MATAMAZOM_ANY_AMOUNT;
 }
-
-//static double basicGetPrice(MtmProductData basePrice, double amount) {
-//    return (*(double *) basePrice) * amount;
-//}
 
 static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
@@ -275,20 +270,6 @@ static double calculateProductPrice(Matamazom matamazom, const unsigned int id, 
     }
     return -1;
 }
-
-//static MtmGetProductPrice getProductPriceFunction(Matamazom matamazom, const unsigned int id) {
-//    if (matamazom == NULL) {
-//        return NULL;
-//    }
-//    ProductNode current = matamazom->productsHead;
-//    while (current != NULL) {
-//        if (current->id == id) {
-//            return current->price;
-//        }
-//        current = current->next;
-//    }
-//    return NULL;
-//}
 
 static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
