@@ -175,10 +175,10 @@ static MatamazomAmountType getAmountTypeByProductId(Matamazom matamazom, const u
     return MATAMAZOM_ANY_AMOUNT;
 }
 
-static double basicGetPrice(MtmProductData basePrice, double amount) {
-    return (*(double *) basePrice) * amount;
-}
--
+//static double basicGetPrice(MtmProductData basePrice, double amount) {
+//    return (*(double *) basePrice) * amount;
+//}
+
 static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
         return NULL;
@@ -262,19 +262,33 @@ static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned i
     return MATAMAZOM_PRODUCT_NOT_EXIST;
 }
 
-static MtmGetProductPrice getProductPriceFunction(Matamazom matamazom, const unsigned int id) {
+static double calculateProductPrice(Matamazom matamazom, const unsigned int id, double amount) {
     if (matamazom == NULL) {
-        return NULL;
+        return -1;
     }
     ProductNode current = matamazom->productsHead;
     while (current != NULL) {
         if (current->id == id) {
-            return current->price;
+            return current->price(current->product, amount);
         }
         current = current->next;
     }
-    return NULL;
+    return -1;
 }
+
+//static MtmGetProductPrice getProductPriceFunction(Matamazom matamazom, const unsigned int id) {
+//    if (matamazom == NULL) {
+//        return NULL;
+//    }
+//    ProductNode current = matamazom->productsHead;
+//    while (current != NULL) {
+//        if (current->id == id) {
+//            return current->price;
+//        }
+//        current = current->next;
+//    }
+//    return NULL;
+//}
 
 static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
@@ -330,10 +344,11 @@ void matamazomDestroy(Matamazom matamazom) {
     OrderNode tempOrder = matamazom->ordersHead;
     OrderNode orderToDelete = matamazom->ordersHead;
     while (tempOrder != NULL) {
+        tempOrder = tempOrder->next;
         asDestroy(orderToDelete->orderProducts);
         free(orderToDelete);
         orderToDelete = tempOrder;
-        tempOrder = tempOrder->next;
+
     }
     free(matamazom);
     matamazom = NULL;
@@ -550,9 +565,7 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     while (productId != (unsigned int*) NULL) {
         asGetAmount(current->orderProducts, productId, &tempAmount);
         mtmChangeProductAmount(matamazom, *productId, -(tempAmount));
-        double income =
-                basicGetPrice(getProductPriceFunction(matamazom, *productId),
-                              tempAmount);
+        double income = calculateProductPrice(matamazom, *productId, tempAmount);
         changeProductIncome(matamazom, *productId, income);
         productId = (unsigned int*) asGetNext(current->orderProducts);
     }
@@ -600,10 +613,10 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     ProductNode current = matamazom->productsHead;
-    double* price = 0;
+    double price = 0;
     fprintf(output, "Inventory Status:\n");
     while (current != NULL) {
-        price = basicGetPrice(getProductPriceFunction(matamazom, current->id), 1);
+        price = calculateProductPrice(matamazom, current->id, 1);
         mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
         current = current->next;
     }
@@ -627,12 +640,12 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
     double total = 0;
     unsigned int* productId = (unsigned int*) asGetFirst(order->orderProducts);
     while (productId != (unsigned int*) NULL) {
-        asGetAmount(order->orderProducts, &productId, &tempAmount);
+        asGetAmount(order->orderProducts, productId, &tempAmount);
         ProductNode product = getProductById(matamazom, *productId);
-        double productTotalPrice = basicGetPrice(product->price, tempAmount);
+            double productTotalPrice = product->price(product->product, tempAmount);
         total += productTotalPrice;
         mtmPrintProductDetails(product->name, product->id,
-                               product->amount, productTotalPrice, output);
+                               tempAmount, productTotalPrice, output);
         productId = (unsigned int*) asGetNext(order->orderProducts);
     }
     mtmPrintOrderSummary(total, output);
@@ -667,14 +680,14 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
 }
 
 MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
-    if (matamazom == NULL || output == NULL || customFilter != NULL) {
+    if (matamazom == NULL || output == NULL || customFilter == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     ProductNode current = matamazom->productsHead;
     double price = 0;
     while (current != NULL) {
         if (customFilter(current->id, current->name, current->amount, current->product)) {
-            price = basicGetPrice(getProductPriceFunction(matamazom, current->id), 1);
+            price = calculateProductPrice(matamazom, current->id, 1);
             mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
         }
         current = current->next;
