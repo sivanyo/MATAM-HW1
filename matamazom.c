@@ -32,8 +32,8 @@ typedef struct product_t {
     const char *name;
     unsigned int id;
     MtmProductData product;
-    MtmCopyData copy;
-    MtmFreeData free;
+    MtmCopyData copyFunction;
+    MtmFreeData freeFunction;
     MtmGetProductPrice price;
     double income;
     double amount;
@@ -320,7 +320,8 @@ void matamazomDestroy(Matamazom matamazom) {
     ProductNode productToDelete = matamazom->productsHead;
     while (tempProduct != NULL) {
         tempProduct = tempProduct->next;
-        productToDelete->free(productToDelete->product);
+        productToDelete->freeFunction(productToDelete->product);
+        free(productToDelete->name);
         free(productToDelete);
         productToDelete = tempProduct;
     }
@@ -356,8 +357,8 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_OUT_OF_MEMORY;
     }
 
-    newProduct->copy = copyData;
-    newProduct->product = newProduct->copy(customData);
+    newProduct->copyFunction = copyData;
+    newProduct->product = newProduct->copyFunction(customData);
     if (newProduct->product == NULL) {
         free(newProduct);
         return MATAMAZOM_OUT_OF_MEMORY;
@@ -371,7 +372,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->id = id;
     newProduct->amount = amount;
     newProduct->amountType = amountType;
-    newProduct->free = freeData;
+    newProduct->freeFunction = freeData;
     newProduct->price = prodPrice;
     newProduct->income = 0;
     newProduct->next = NULL;
@@ -445,7 +446,8 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     // Checking if the product we need to remove is the first stored product.
     if (matamazom->productsHead->id == id) {
         ProductNode temp = matamazom->productsHead;
-        temp->free(temp->product);
+        temp->freeFunction(temp->product);
+        free(temp->name);
         matamazom->productsHead = temp->next;
         free(temp);
     }
@@ -456,6 +458,7 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     while (current != NULL) {
         if (current->id == id) {
             previous->next = current->next;
+            free(current->name);
             free(current);
             return MATAMAZOM_SUCCESS;
         }
@@ -665,7 +668,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     } else {
         mtmPrintIncomeLine(name, maxProductId, maxIncome, output);
     }
-    //free(copyName);
+    //freeFunction(copyName);
 
     return MATAMAZOM_SUCCESS;
 }
