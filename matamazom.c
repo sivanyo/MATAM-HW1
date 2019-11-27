@@ -28,6 +28,7 @@ static int compareInts(ASElement lhs, ASElement rhs) {
 }
 
 typedef struct product_t {
+//    const char *name[50];
     const char *name;
     unsigned int id;
     MtmProductData product;
@@ -318,6 +319,7 @@ void matamazomDestroy(Matamazom matamazom) {
     ProductNode productToDelete = matamazom->productsHead;
     while (tempProduct != NULL) {
         tempProduct = tempProduct->next;
+        productToDelete->free(productToDelete->product);
         free(productToDelete);
         productToDelete = tempProduct;
     }
@@ -353,16 +355,17 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_OUT_OF_MEMORY;
     }
 
-    newProduct->product = copyData(customData);
+    newProduct->copy = copyData;
+    newProduct->product = newProduct->copy(customData);
     if (newProduct->product == NULL) {
         free(newProduct);
         return MATAMAZOM_OUT_OF_MEMORY;
     }
     newProduct->name = name;
+//    strcpy(newProduct->name, name);
     newProduct->id = id;
     newProduct->amount = amount;
     newProduct->amountType = amountType;
-    newProduct->copy = copyData;
     newProduct->free = freeData;
     newProduct->price = prodPrice;
     newProduct->income = 0;
@@ -436,6 +439,7 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
     // Checking if the product we need to remove is the first stored product.
     if (matamazom->productsHead->id == id) {
         ProductNode temp = matamazom->productsHead;
+        temp->free(temp->product);
         matamazom->productsHead = temp->next;
         free(temp);
     }
@@ -646,6 +650,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
         if (current->income > maxIncome) {
             maxIncome = current->income;
             maxProductId = current->id;
+//            name = strcpy(name, current->name);
             name = current->name;
         }
         current = current->next;
