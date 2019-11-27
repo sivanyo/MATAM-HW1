@@ -106,7 +106,8 @@ static bool removeProductFromOrders(Matamazom matamazom, const unsigned int id) 
 static bool checkLegalName(const char *name) {
     if (strlen(name) == 0) {
         return false;
-    } else if ((name[0] >= 'a' && name[0] <= 'z') || (name[0] >= 'A' && name[0] <= 'Z')) {
+    } else if ((name[0] >= 'a' && name[0] <= 'z') ||
+                (name[0] >= 'A' && name[0] <= 'Z')) {
         return true;
     } else if (name[0] >= '0' && name[0] <= '9') {
         return true;
@@ -361,8 +362,13 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         free(newProduct);
         return MATAMAZOM_OUT_OF_MEMORY;
     }
-    newProduct->name = name;
-//    strcpy(newProduct->name, name);
+    char* copyName = (char*)malloc(sizeof(char)*strlen(name)+1);
+    if (copyName==NULL) {
+        return MATAMAZOM_OUT_OF_MEMORY;
+    }
+    copyName = name;
+    newProduct->name = copyName;
+    //free(copyName);
     newProduct->id = id;
     newProduct->amount = amount;
     newProduct->amountType = amountType;
@@ -370,6 +376,7 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
     newProduct->price = prodPrice;
     newProduct->income = 0;
     newProduct->next = NULL;
+
 
     if (matamazom->productsHead == NULL) {
         matamazom->productsHead = newProduct;
@@ -605,7 +612,6 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
         mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
         current = current->next;
     }
-
     return MATAMAZOM_SUCCESS;
 }
 
@@ -643,15 +649,25 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     }
     fprintf(output, "Best Selling Product:\n");
     ProductNode current = matamazom->productsHead;
-    char *name = "";
+    const char* copyName =
+            (char*)malloc(sizeof(char)*strlen(current->name)+1);
+    if (copyName==NULL) {
+        return MATAMAZOM_OUT_OF_MEMORY;
+    }
+    copyName = current->name;
     double maxIncome = 0;
     unsigned int maxProductId = 0;
     while (current != NULL) {
         if (current->income > maxIncome) {
+            //free(copyName);
             maxIncome = current->income;
             maxProductId = current->id;
-//            name = strcpy(name, current->name);
-            name = current->name;
+            const char* copyName =
+                    (char*)malloc(sizeof(char)*strlen(current->name)+1);
+            if (copyName==NULL) {
+                return MATAMAZOM_OUT_OF_MEMORY;
+            }
+            copyName = current->name;
         }
         current = current->next;
     }
@@ -659,8 +675,9 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     if (maxProductId == 0) {
         fprintf(output, "none\n");
     } else {
-        mtmPrintIncomeLine(name, maxProductId, maxIncome, output);
+        mtmPrintIncomeLine(copyName, maxProductId, maxIncome, output);
     }
+    //free(copyName);
 
     return MATAMAZOM_SUCCESS;
 }
