@@ -107,7 +107,7 @@ static bool checkLegalName(const char *name) {
     if (strlen(name) == 0) {
         return false;
     } else if ((name[0] >= 'a' && name[0] <= 'z') ||
-                (name[0] >= 'A' && name[0] <= 'Z')) {
+               (name[0] >= 'A' && name[0] <= 'Z')) {
         return true;
     } else if (name[0] >= '0' && name[0] <= '9') {
         return true;
@@ -362,13 +362,12 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         free(newProduct);
         return MATAMAZOM_OUT_OF_MEMORY;
     }
-    char* copyName = (char*)malloc(sizeof(char)*strlen(name)+1);
-    if (copyName==NULL) {
+    char *copyName = (char *) malloc(sizeof(char) * strlen(name) + 1);
+    if (copyName == NULL) {
         return MATAMAZOM_OUT_OF_MEMORY;
     }
-    copyName = name;
+    strcpy(copyName, name);
     newProduct->name = copyName;
-    //free(copyName);
     newProduct->id = id;
     newProduct->amount = amount;
     newProduct->amountType = amountType;
@@ -413,7 +412,7 @@ MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int i
     ProductNode current = matamazom->productsHead;
     while (current != NULL) {
         if (current->id == id) {
-            if(!checkAmountType(amount, current->amountType)) {
+            if (!checkAmountType(amount, current->amountType)) {
                 return MATAMAZOM_INVALID_AMOUNT;
             }
             if (amount >= 0) {
@@ -544,22 +543,22 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     }
 
     double tempAmount = 0;
-    unsigned int* productId = (unsigned int*) asGetFirst(current->orderProducts);
-    while (productId != (unsigned int*) NULL) {
+    unsigned int *productId = (unsigned int *) asGetFirst(current->orderProducts);
+    while (productId != (unsigned int *) NULL) {
         asGetAmount(current->orderProducts, productId, &tempAmount);
         if (getProductAmount(matamazom, *productId) - tempAmount < 0) {
             return MATAMAZOM_INSUFFICIENT_AMOUNT;
         }
-        productId = (unsigned int*) asGetNext(current->orderProducts);
+        productId = (unsigned int *) asGetNext(current->orderProducts);
     }
 
-    productId = (unsigned int*) asGetFirst(current->orderProducts);
-    while (productId != (unsigned int*) NULL) {
+    productId = (unsigned int *) asGetFirst(current->orderProducts);
+    while (productId != (unsigned int *) NULL) {
         asGetAmount(current->orderProducts, productId, &tempAmount);
         mtmChangeProductAmount(matamazom, *productId, -(tempAmount));
         double income = calculateProductPrice(matamazom, *productId, tempAmount);
         changeProductIncome(matamazom, *productId, income);
-        productId = (unsigned int*) asGetNext(current->orderProducts);
+        productId = (unsigned int *) asGetNext(current->orderProducts);
     }
     asDestroy(current->orderProducts);
     removeShippedOrder(matamazom, orderId);
@@ -629,15 +628,15 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
     }
     double tempAmount = 0;
     double total = 0;
-    unsigned int* productId = (unsigned int*) asGetFirst(order->orderProducts);
-    while (productId != (unsigned int*) NULL) {
+    unsigned int *productId = (unsigned int *) asGetFirst(order->orderProducts);
+    while (productId != (unsigned int *) NULL) {
         asGetAmount(order->orderProducts, productId, &tempAmount);
         ProductNode product = getProductById(matamazom, *productId);
-            double productTotalPrice = product->price(product->product, tempAmount);
+        double productTotalPrice = product->price(product->product, tempAmount);
         total += productTotalPrice;
         mtmPrintProductDetails(product->name, product->id,
                                tempAmount, productTotalPrice, output);
-        productId = (unsigned int*) asGetNext(order->orderProducts);
+        productId = (unsigned int *) asGetNext(order->orderProducts);
     }
     mtmPrintOrderSummary(total, output);
     return MATAMAZOM_SUCCESS;
@@ -649,25 +648,14 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     }
     fprintf(output, "Best Selling Product:\n");
     ProductNode current = matamazom->productsHead;
-    const char* copyName =
-            (char*)malloc(sizeof(char)*strlen(current->name)+1);
-    if (copyName==NULL) {
-        return MATAMAZOM_OUT_OF_MEMORY;
-    }
-    copyName = current->name;
+    const char *name = "";
     double maxIncome = 0;
     unsigned int maxProductId = 0;
     while (current != NULL) {
         if (current->income > maxIncome) {
-            //free(copyName);
             maxIncome = current->income;
             maxProductId = current->id;
-            const char* copyName =
-                    (char*)malloc(sizeof(char)*strlen(current->name)+1);
-            if (copyName==NULL) {
-                return MATAMAZOM_OUT_OF_MEMORY;
-            }
-            copyName = current->name;
+            name = current->name;
         }
         current = current->next;
     }
@@ -675,7 +663,7 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     if (maxProductId == 0) {
         fprintf(output, "none\n");
     } else {
-        mtmPrintIncomeLine(copyName, maxProductId, maxIncome, output);
+        mtmPrintIncomeLine(name, maxProductId, maxIncome, output);
     }
     //free(copyName);
 
