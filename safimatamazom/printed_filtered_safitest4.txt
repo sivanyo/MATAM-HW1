@@ -1,8 +1,0 @@
-name: Glass, id: 1, amount: 10.000, price: 100.000
-name: olives, id: 3, amount: 15.789, price: 20.000
-name: Watermelon, id: 7, amount: 0.500, price: 18.500
-name: Television, id: 10, amount: 10.000, price: 2000.000
-name: Playstation, id: 13, amount: 0.000, price: 1000.000
-name: eggplant, id: 17, amount: 0.345, price: 7.350
-name: home, id: 25, amount: 0.000, price: 45000.000
-name: car, id: 28, amount: 0.000, price: 45000.000
