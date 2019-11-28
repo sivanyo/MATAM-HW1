@@ -668,7 +668,6 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     } else {
         mtmPrintIncomeLine(name, maxProductId, maxIncome, output);
     }
-    //freeFunction(copyName);
 
     return MATAMAZOM_SUCCESS;
 }
