@@ -1,0 +1,7 @@
+name: Watermelon, id: 7, amount: 0.500, price: 18.500
+name: Television, id: 10, amount: 10.000, price: 2000.000
+name: Smart TV, id: 11, amount: 1.000, price: 5000.000
+name: Pack of cigarettes, id: 12, amount: 2.000, price: 40.000
+name: Playstation, id: 13, amount: 0.000, price: 1000.000
+name: eggplant, id: 17, amount: 0.345, price: 7.350
+name: Surf Board, id: 24, amount: 2.000, price: 350.000

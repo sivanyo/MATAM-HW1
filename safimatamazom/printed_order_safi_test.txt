@@ -1,0 +1,13 @@
+Order 1 Details:
+name: Glass, id: 1, amount: 800.000, price: 80000.000
+name: olives, id: 3, amount: 14.560, price: 291.200
+name: Tomato, id: 4, amount: 22.060, price: 196.334
+name: Onion, id: 6, amount: 21.000, price: 63.800
+name: Watermelon, id: 7, amount: 34.501, price: 638.268
+name: Xbox, id: 8, amount: 34.001, price: 51001.500
+name: beer, id: 9, amount: 30.001, price: 600.020
+name: Television, id: 10, amount: 69.000, price: 138000.000
+name: Smart TV, id: 11, amount: 88.000, price: 439999.500
+name: Pack of cigarettes, id: 12, amount: 61.000, price: 2440.000
+----------
+Total Price: 713230.623

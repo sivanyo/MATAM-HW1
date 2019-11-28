@@ -12,3 +12,6 @@ add_executable(matamazom_local main2.c matamazom.c matamazom.h amount_set.c amou
 target_link_libraries(matamazom_local m)
 add_executable(matamazom_real matamazom.c matamazom.h tests/matamazom_main.c tests/matamazom_tests.c tests/matamazom_tests.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
 target_link_libraries(matamazom_real m)
+#add_executable(matamazom_safi safi_matamazom.c order.c matamazom.c matamazom.h)
+add_executable(matamazom_safi safi_matamazom.c matamazom.c matamazom.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
+target_link_libraries(matamazom_safi m)

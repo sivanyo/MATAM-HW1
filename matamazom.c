@@ -9,7 +9,7 @@
 #include "matamazom_print.h"
 #include "amount_set.h"
 
-#define FULL_OFFSET 0.01
+#define FULL_OFFSET 0.001
 #define HALF_OFFSET 0.5
 
 /** Static functions to handle ids inside product linked list */
