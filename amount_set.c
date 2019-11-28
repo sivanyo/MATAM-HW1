@@ -22,11 +22,13 @@ struct AmountSet_t {
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
-    AmountSet set = calloc(1, sizeof(*set));
-    if (set == NULL ||
-        copyElement == NULL ||
-        freeElement == NULL ||
+    if (copyElement == NULL || freeElement == NULL ||
         compareElements == NULL) {
+        return NULL;
+    }
+    AmountSet set = calloc(1, sizeof(*set));
+    if (set == NULL) {
+        free(set);
         return NULL;
     }
     set->head = NULL;
@@ -143,7 +145,7 @@ bool asContains(AmountSet set, ASElement element) {
 
 
 AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount) {
-    if (set == NULL || element == NULL) {
+    if (set == NULL || element == NULL || outAmount == NULL) {
         return AS_NULL_ARGUMENT;
     }
 
@@ -243,7 +245,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     }
 
     ElementNode current = set->head;
-    if (set->head==NULL) {
+    if (set->head == NULL) {
         // The set is empty, so the item doesn't exist.
         return AS_ITEM_DOES_NOT_EXIST;
     }
@@ -251,6 +253,7 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
         // The first item in the linked list is the one we need to remove
         // Freeing and setting a new head.
         set->head = current->next;
+        set->free(current->element);
         free(current);
         current = NULL;
         return AS_SUCCESS;
@@ -285,6 +288,7 @@ AmountSetResult asClear(AmountSet set) {
         current = next;
     }
     set->head = NULL;
+    set->current = NULL;
     return AS_SUCCESS;
 }
 
@@ -302,7 +306,7 @@ ASElement asGetFirst(AmountSet set) {
 }
 
 ASElement asGetNext(AmountSet set) {
-    if (set == NULL) {
+    if (set == NULL || set->current == NULL) {
         return NULL;
     }
 
