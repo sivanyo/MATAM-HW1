@@ -243,6 +243,10 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     }
 
     ElementNode current = set->head;
+    if (set->head==NULL) {
+        // The set is empty, so the item doesn't exist.
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
     if (!set->compare(current->element, element)) {
         // The first item in the linked list is the one we need to remove
         // Freeing and setting a new head.
