@@ -1,6 +1,6 @@
 CC = gcc
 DEBUG_FLAG =
-OBJS = matamazom.o matamazom_print.o matamazom_tests_main.o matamazom_tests.o amount_set.o
+OBJS = matamazom.o matamazom_print.o matamazom_main.o matamazom_tests.o amount_set.o
 EXEC = matamazom
 LIBS = -L. -lm -lmtm
 CFLAGS = -std=c99 -Wall -Werror
@@ -14,12 +14,12 @@ amount_set: amount_set.o amount_set_tests.o
         $(CC) $(DEBUG_FLAGS) $(CFLAGS) amount_set.o amount_set_tests.o -o $@
 
 # build matamazom tests runner library
-matamazom_tests_main.o: matamazom_tests.o matamazom.o
+matamazom_main.o: matamazom_tests.o matamazom.o
         $(CC) -c $(DEBUG_FLAGS) $(CFLAGS) $*.c
 
-# build matamazom tests library file
+# build matamazom tests library
 matamazom_tests.o: matamazom_tests.c matamazom_tests.h test_utilities.h matamazom.o
-        $(CC) -c $(DEBUG_FLAGS) $(CFLAGS) matamazom_tests_main.c $*.c
+        $(CC) -c $(DEBUG_FLAGS) $(CFLAGS) $*.c
 
 # build amount_set tests library file
 amount_set_tests.o: amount_set.o
