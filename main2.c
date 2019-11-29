@@ -58,6 +58,7 @@ int main() {
     FILE* test = fopen("./test.txt", "w");
     mtmPrintInventory(mtz, test);
     fprintf(test, prodName);
+    matamazomDestroy(mtz);
 //    fprintf(test, "hello");
 //    fclose(test);
     return 0;
