@@ -3,7 +3,7 @@ DEBUG_FLAG =
 OBJS = matamazom.o matamazom_print.o matamazom_main.o matamazom_tests.o amount_set.o
 EXEC = matamazom
 LIBS = -L. -lm -lmtm
-CFLAGS = -std=c99 -Wall -Werror
+CFLAGS = -std=c99 -Wall -Werror -pedantic-errors
 
 # build matamazom using dependencies
 $(EXEC): $(OBJS)
