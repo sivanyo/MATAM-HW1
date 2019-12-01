@@ -7,6 +7,9 @@ add_executable(amount_set amount_set.c amount_set.h tests/amount_set_main.c test
 add_executable(amount_set_local main.c amount_set.c amount_set.h)
 add_executable(amount_set_noa noa_amount_set_tests.c amount_set.c amount_set.h)
 add_executable(amount_set_safi safi_tests_amount_set.c amount_set.c amount_set.h)
+add_executable(amount_set_tests amounnt_set_tests.c amount_set amount_set.c amount_set.h)
+
+
 
 add_executable(matamazom_local main2.c matamazom.c matamazom.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
 target_link_libraries(matamazom_local m)
