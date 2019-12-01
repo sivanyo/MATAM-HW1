@@ -439,6 +439,7 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
         free((char *) temp->name);
         matamazom->productsHead = temp->next;
         free(temp);
+        return MATAMAZOM_SUCCESS;
     }
 
     ProductNode previous = matamazom->productsHead;
