@@ -49,6 +49,7 @@ typedef struct order_t {
 struct Matamazom_t {
     ProductNode productsHead;
     OrderNode ordersHead;
+    unsigned int lastOrderId;
 };
 
 // custom functions for internal use
@@ -212,7 +213,7 @@ MatamazomResult changeAmountOfProductInSet(AmountSet set,
         // Product does not exist in order, checking if amount is valid
         // to add it to the order.
         if (amount <= 0) {
-            return MATAMAZOM_PRODUCT_NOT_EXIST;
+            return MATAMAZOM_SUCCESS;
         } else {
             asRegister(set, &productId);
             asChangeAmount(set, &productId, amount);
@@ -357,6 +358,7 @@ Matamazom matamazomCreate() {
     }
     matamazom->productsHead = NULL;
     matamazom->ordersHead = NULL;
+    matamazom->lastOrderId = 0;
 
     return matamazom;
 }
@@ -498,7 +500,7 @@ MatamazomResult mtmClearProduct(Matamazom matamazom, const unsigned int id) {
 
 unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     if (matamazom == NULL) {
-        return MATAMAZOM_NULL_ARGUMENT;
+        return 0;
     }
     OrderNode newOrder = malloc(sizeof(*newOrder));
     if (newOrder == NULL) {
@@ -511,12 +513,14 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     if (matamazom->ordersHead == NULL) {
         newOrder->id = 1;
         matamazom->ordersHead = newOrder;
+        matamazom->lastOrderId = newOrder->id;
         return newOrder->id;
     }
     OrderNode temp = matamazom->ordersHead;
     while (temp != NULL) {
         if (temp->next == NULL) {
-            newOrder->id = temp->id + 1;
+            newOrder->id = matamazom->lastOrderId + 1;
+            matamazom->lastOrderId += 1;
             temp->next = newOrder;
             return newOrder->id;
         }
