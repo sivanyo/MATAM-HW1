@@ -51,8 +51,10 @@ struct Matamazom_t {
     ProductNode productsHead;
     OrderNode ordersHead;
 };
-
-// custom functions for internal use
+/**
+* This function will get a matamazom and an product ID and check if there is
+* a product with the same ID in matamazom
+*/
 static bool warehouseContainsProduct(Matamazom matamazom, const unsigned int id) {
     ProductNode tempProduct;
     tempProduct = matamazom->productsHead;
@@ -64,7 +66,10 @@ static bool warehouseContainsProduct(Matamazom matamazom, const unsigned int id)
     }
     return false;
 }
-
+/**
+*This function will get a matamazom and an order ID and check if there is
+* a order with the same ID in matamazom
+ */
 static bool warehouseContainsOrder(Matamazom matamazom, const unsigned int id) {
     OrderNode tempOrder;
     tempOrder = matamazom->ordersHead;
@@ -76,7 +81,6 @@ static bool warehouseContainsOrder(Matamazom matamazom, const unsigned int id) {
     }
     return false;
 }
-
 /**
  * This function will remove products from all orders which contain them,
  * in order to make sure that no orders contain products that were removed from
@@ -102,7 +106,9 @@ static bool removeProductFromOrders(Matamazom matamazom, unsigned int id) {
 
     return true;
 }
-
+/**
+ * This function will get a string and check if it is a valid name
+ */
 static bool checkLegalName(const char *name) {
     if (strlen(name) == 0) {
         return false;
@@ -140,7 +146,10 @@ static bool checkAmountType(double amount, const MatamazomAmountType amountType)
         return true;
     }
 }
-
+/**
+ * This function will make a general check for a product, according to
+ * the course demands
+ */
 static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int id, const char *name,
                                          const double amount, const MatamazomAmountType amountType,
                                          const MtmProductData customData, MtmCopyData copyData,
@@ -164,7 +173,10 @@ static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int
 
     return MATAMAZOM_SUCCESS;
 }
-
+/**
+ * This function will get a matamazom warehouse and a product Id and will return
+ * the product with same ID from the warehouse
+ */
 static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
         return NULL;
@@ -175,8 +187,6 @@ static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
     }
     return current;
 }
-
-
 /**
  * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
  * in the amount set accordingly, the logic is identical to the one in mtmChangeProductAmountInOrder.
@@ -231,7 +241,10 @@ static double getProductAmount(Matamazom matamazom, const unsigned int id) {
     // Shouldn't get here.
     return -1;
 }
-
+/**
+ * This function will calculate the update income of a certain product by it's
+ * ID
+ */
 static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned int id, double income) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
@@ -247,7 +260,9 @@ static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned i
     }
     return MATAMAZOM_PRODUCT_NOT_EXIST;
 }
-
+/**
+ * This function will calculate the product price
+ */
 static double calculateProductPrice(Matamazom matamazom, const unsigned int id, double amount) {
     if (matamazom == NULL) {
         return -1;
@@ -261,7 +276,10 @@ static double calculateProductPrice(Matamazom matamazom, const unsigned int id, 
     }
     return -1;
 }
-
+/**
+ * This function gets a matamzom warehouse and an order ID and will
+ * remove the order from the warehouse
+ */
 static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
