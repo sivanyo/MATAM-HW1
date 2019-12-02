@@ -28,7 +28,6 @@ static int compareInts(ASElement lhs, ASElement rhs) {
 }
 
 typedef struct product_t {
-//    const char *name[50];
     const char *name;
     unsigned int id;
     MtmProductData product;
@@ -53,7 +52,8 @@ struct Matamazom_t {
 };
 
 // custom functions for internal use
-static bool warehouseContainsProduct(Matamazom matamazom, const unsigned int id) {
+static bool warehouseContainsProduct(Matamazom matamazom,
+                                     const unsigned int id) {
     ProductNode tempProduct;
     tempProduct = matamazom->productsHead;
     while (tempProduct != NULL) {
@@ -65,7 +65,8 @@ static bool warehouseContainsProduct(Matamazom matamazom, const unsigned int id)
     return false;
 }
 
-static bool warehouseContainsOrder(Matamazom matamazom, const unsigned int id) {
+static bool warehouseContainsOrder(Matamazom matamazom,
+                                   const unsigned int id) {
     OrderNode tempOrder;
     tempOrder = matamazom->ordersHead;
     while (tempOrder != NULL) {
@@ -119,7 +120,8 @@ static bool checkLegalName(const char *name) {
 /**
  * Function to check if the provided amount matches the AmountType specified.
  */
-static bool checkAmountType(double amount, const MatamazomAmountType amountType) {
+static bool checkAmountType(double amount,
+                            const MatamazomAmountType amountType) {
     // Checking if number is a legal full int
     if (amountType == MATAMAZOM_INTEGER_AMOUNT) {
         if (floor(amount) == amount || floor(amount) + FULL_OFFSET == amount ||
@@ -141,10 +143,14 @@ static bool checkAmountType(double amount, const MatamazomAmountType amountType)
     }
 }
 
-static MatamazomResult validProductCheck(Matamazom matamazom, const unsigned int id, const char *name,
-                                         const double amount, const MatamazomAmountType amountType,
-                                         const MtmProductData customData, MtmCopyData copyData,
-                                         MtmFreeData freeData, MtmGetProductPrice prodPrice) {
+static MatamazomResult validProductCheck(Matamazom matamazom,
+                                         const unsigned int id,
+                                         const char *name, const double amount,
+                                         const MatamazomAmountType amountType,
+                                         const MtmProductData customData,
+                                         MtmCopyData copyData,
+                                         MtmFreeData freeData,
+                                         MtmGetProductPrice prodPrice) {
     if (matamazom == NULL || name == NULL || customData == NULL ||
         copyData == NULL || freeData == NULL || prodPrice == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
@@ -178,10 +184,13 @@ static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
 
 
 /**
- * This function receives an amount set and an ID and amount, and changes the amount of the correct productId
- * in the amount set accordingly, the logic is identical to the one in mtmChangeProductAmountInOrder.
+ * This function receives an amount set and an ID and amount, and changes
+ * the amount of the correct productId in the amount set accordingly,
+ * the logic is identical to the one in mtmChangeProductAmountInOrder.
  */
-MatamazomResult changeAmountOfProductInSet(AmountSet set, unsigned int productId, const double amount) {
+MatamazomResult changeAmountOfProductInSet(AmountSet set,
+                                           unsigned int productId,
+                                           const double amount) {
     double currentAmount = 0;
     if (asContains(set, &productId)) {
         // We found the product we need to change, checking
@@ -213,8 +222,8 @@ MatamazomResult changeAmountOfProductInSet(AmountSet set, unsigned int productId
 }
 
 /**
- * This function recieves a matamazon warehouse and product ID and returns the amount
- * of that product in the warehouse.
+ * This function recieves a matamazon warehouse and product ID and
+ * returns the amount of that product in the warehouse.
  */
 static double getProductAmount(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
@@ -232,7 +241,9 @@ static double getProductAmount(Matamazom matamazom, const unsigned int id) {
     return -1;
 }
 
-static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned int id, double income) {
+static MatamazomResult changeProductIncome(Matamazom matamazom,
+                                           const unsigned int id,
+                                           double income) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -248,7 +259,8 @@ static MatamazomResult changeProductIncome(Matamazom matamazom, const unsigned i
     return MATAMAZOM_PRODUCT_NOT_EXIST;
 }
 
-static double calculateProductPrice(Matamazom matamazom, const unsigned int id, double amount) {
+static double calculateProductPrice(Matamazom matamazom, const unsigned int id,
+                                    double amount) {
     if (matamazom == NULL) {
         return -1;
     }
@@ -262,7 +274,8 @@ static double calculateProductPrice(Matamazom matamazom, const unsigned int id, 
     return -1;
 }
 
-static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned int id) {
+static MatamazomResult removeShippedOrder(Matamazom matamazom,
+                                          const unsigned int id) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -287,6 +300,54 @@ static MatamazomResult removeShippedOrder(Matamazom matamazom, const unsigned in
     }
     // Shouldn't get here.
     return MATAMAZOM_ORDER_NOT_EXIST;
+}
+
+static ProductNode fillProductFields(ProductNode product,
+                                     const unsigned int id,
+                                     const char *copyName, const double amount,
+                                     const MatamazomAmountType amountType,
+                                     MtmFreeData freeData,
+                                     MtmGetProductPrice prodPrice
+) {
+    product->id = id;
+    product->name = copyName;
+    product->amount = amount;
+    product->amountType = amountType;
+    product->freeFunction = freeData;
+    product->price = prodPrice;
+    product->income = 0;
+    product->next = NULL;
+
+    return product;
+}
+
+static MatamazomResult addProductToLinkedList(Matamazom matamazom,
+                                              ProductNode newProduct) {
+    if (matamazom->productsHead == NULL) {
+        matamazom->productsHead = newProduct;
+        return MATAMAZOM_SUCCESS;
+    }
+
+    if (newProduct->id < matamazom->productsHead->id) {
+        newProduct->next = matamazom->productsHead;
+        matamazom->productsHead = newProduct;
+        return MATAMAZOM_SUCCESS;
+    }
+
+    ProductNode current = matamazom->productsHead;
+    ProductNode previous = current;
+
+    while (current != NULL) {
+        if (newProduct->id < current->id) {
+            previous->next = newProduct;
+            newProduct->next = current;
+            return MATAMAZOM_SUCCESS;
+        }
+        previous = current;
+        current = current->next;
+    }
+    previous->next = newProduct;
+    return MATAMAZOM_SUCCESS;
 }
 
 Matamazom matamazomCreate() {
@@ -328,10 +389,13 @@ void matamazomDestroy(Matamazom matamazom) {
     matamazom = NULL;
 }
 
-MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const char *name,
-                              const double amount, const MatamazomAmountType amountType,
-                              const MtmProductData customData, MtmCopyData copyData,
-                              MtmFreeData freeData, MtmGetProductPrice prodPrice) {
+MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id,
+                              const char *name, const double amount,
+                              const MatamazomAmountType amountType,
+                              const MtmProductData customData,
+                              MtmCopyData copyData,
+                              MtmFreeData freeData,
+                              MtmGetProductPrice prodPrice) {
     MatamazomResult checksResult = validProductCheck(matamazom, id, name,
                                                      amount, amountType,
                                                      customData, copyData,
@@ -357,44 +421,15 @@ MatamazomResult mtmNewProduct(Matamazom matamazom, const unsigned int id, const 
         return MATAMAZOM_OUT_OF_MEMORY;
     }
     strcpy(copyName, name);
-    newProduct->name = copyName;
-    newProduct->id = id;
-    newProduct->amount = amount;
-    newProduct->amountType = amountType;
-    newProduct->freeFunction = freeData;
-    newProduct->price = prodPrice;
-    newProduct->income = 0;
-    newProduct->next = NULL;
+    newProduct = fillProductFields(newProduct, id, copyName, amount,
+                                   amountType, freeData, prodPrice);
 
-
-    if (matamazom->productsHead == NULL) {
-        matamazom->productsHead = newProduct;
-        return MATAMAZOM_SUCCESS;
-    }
-
-    if (id < matamazom->productsHead->id) {
-        newProduct->next = matamazom->productsHead;
-        matamazom->productsHead = newProduct;
-        return MATAMAZOM_SUCCESS;
-    }
-
-    ProductNode current = matamazom->productsHead;
-    ProductNode previous = current;
-
-    while (current != NULL) {
-        if (newProduct->id < current->id) {
-            previous->next = newProduct;
-            newProduct->next = current;
-            return MATAMAZOM_SUCCESS;
-        }
-        previous = current;
-        current = current->next;
-    }
-    previous->next = newProduct;
-    return MATAMAZOM_SUCCESS;
+    return addProductToLinkedList(matamazom, newProduct);
 }
 
-MatamazomResult mtmChangeProductAmount(Matamazom matamazom, const unsigned int id, const double amount) {
+MatamazomResult mtmChangeProductAmount(Matamazom matamazom,
+                                       const unsigned int id,
+                                       const double amount) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -492,8 +527,10 @@ unsigned int mtmCreateNewOrder(Matamazom matamazom) {
     return 0;
 }
 
-MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom, const unsigned int orderId,
-                                              const unsigned int productId, const double amount) {
+MatamazomResult mtmChangeProductAmountInOrder(Matamazom matamazom,
+                                              const unsigned int orderId,
+                                              const unsigned int productId,
+                                              const double amount) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -542,7 +579,8 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     }
 
     double tempAmount = 0;
-    unsigned int *productId = (unsigned int *) asGetFirst(current->orderProducts);
+    unsigned int *productId =
+            (unsigned int *) asGetFirst(current->orderProducts);
     while (productId != (unsigned int *) NULL) {
         asGetAmount(current->orderProducts, productId, &tempAmount);
         if (getProductAmount(matamazom, *productId) - tempAmount < 0) {
@@ -555,7 +593,8 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     while (productId != (unsigned int *) NULL) {
         asGetAmount(current->orderProducts, productId, &tempAmount);
         mtmChangeProductAmount(matamazom, *productId, -(tempAmount));
-        double income = calculateProductPrice(matamazom, *productId, tempAmount);
+        double income =
+                calculateProductPrice(matamazom, *productId, tempAmount);
         changeProductIncome(matamazom, *productId, income);
         productId = (unsigned int *) asGetNext(current->orderProducts);
     }
@@ -564,7 +603,8 @@ MatamazomResult mtmShipOrder(Matamazom matamazom, const unsigned int orderId) {
     return MATAMAZOM_SUCCESS;
 }
 
-MatamazomResult mtmCancelOrder(Matamazom matamazom, const unsigned int orderId) {
+MatamazomResult mtmCancelOrder(Matamazom matamazom,
+                               const unsigned int orderId) {
     if (matamazom == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -607,13 +647,15 @@ MatamazomResult mtmPrintInventory(Matamazom matamazom, FILE *output) {
     fprintf(output, "Inventory Status:\n");
     while (current != NULL) {
         price = calculateProductPrice(matamazom, current->id, 1);
-        mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
+        mtmPrintProductDetails(current->name, current->id,
+                               current->amount, price, output);
         current = current->next;
     }
     return MATAMAZOM_SUCCESS;
 }
 
-MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, FILE *output) {
+MatamazomResult mtmPrintOrder(Matamazom matamazom,
+                              const unsigned int orderId, FILE *output) {
     if (matamazom == NULL || output == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
@@ -627,11 +669,13 @@ MatamazomResult mtmPrintOrder(Matamazom matamazom, const unsigned int orderId, F
     }
     double tempAmount = 0;
     double total = 0;
-    unsigned int *productId = (unsigned int *) asGetFirst(order->orderProducts);
+    unsigned int *productId =
+            (unsigned int *) asGetFirst(order->orderProducts);
     while (productId != (unsigned int *) NULL) {
         asGetAmount(order->orderProducts, productId, &tempAmount);
         ProductNode product = getProductById(matamazom, *productId);
-        double productTotalPrice = product->price(product->product, tempAmount);
+        double productTotalPrice =
+                product->price(product->product, tempAmount);
         total += productTotalPrice;
         mtmPrintProductDetails(product->name, product->id,
                                tempAmount, productTotalPrice, output);
@@ -668,16 +712,19 @@ MatamazomResult mtmPrintBestSelling(Matamazom matamazom, FILE *output) {
     return MATAMAZOM_SUCCESS;
 }
 
-MatamazomResult mtmPrintFiltered(Matamazom matamazom, MtmFilterProduct customFilter, FILE *output) {
+MatamazomResult mtmPrintFiltered(Matamazom matamazom,
+                                 MtmFilterProduct customFilter, FILE *output) {
     if (matamazom == NULL || output == NULL || customFilter == NULL) {
         return MATAMAZOM_NULL_ARGUMENT;
     }
     ProductNode current = matamazom->productsHead;
     double price = 0;
     while (current != NULL) {
-        if (customFilter(current->id, current->name, current->amount, current->product)) {
+        if (customFilter(current->id, current->name,
+                         current->amount, current->product)) {
             price = calculateProductPrice(matamazom, current->id, 1);
-            mtmPrintProductDetails(current->name, current->id, current->amount, price, output);
+            mtmPrintProductDetails(current->name, current->id,
+                                   current->amount, price, output);
         }
         current = current->next;
     }

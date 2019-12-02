@@ -144,7 +144,8 @@ bool asContains(AmountSet set, ASElement element) {
 }
 
 
-AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount) {
+AmountSetResult asGetAmount(AmountSet set, ASElement element,
+                            double *outAmount) {
     if (set == NULL || element == NULL || outAmount == NULL) {
         return AS_NULL_ARGUMENT;
     }
@@ -219,7 +220,8 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     }
 }
 
-AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount) {
+AmountSetResult asChangeAmount(AmountSet set, ASElement element,
+                               const double amount) {
     if (set == NULL || element == NULL) {
         return AS_NULL_ARGUMENT;
     }

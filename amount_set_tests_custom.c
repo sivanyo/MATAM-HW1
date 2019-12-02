@@ -127,7 +127,8 @@ int main() {
 
     // Creating set to use in multiple test scenarios.
     AmountSet set_test = asCreate((CopyASElement) copyFunction,
-                                  (FreeASElement) freeFunction, (CompareASElements) compareFunction);
+                                  (FreeASElement) freeFunction,
+                                  (CompareASElements) compareFunction);
 
     // Checking that created set is empty.
     RUN_TEST(asGetSizeCheck, set_test, 0);
