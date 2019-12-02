@@ -5,12 +5,19 @@
 #include "amount_set.h"
 #include <stdlib.h>
 
+/**
+ * Struct definition for ElementNode - linked list container
+ * for ASElements with amount.
+ */
 typedef struct element_node_t {
     ASElement element;
     double amount;
     struct element_node_t *next;
 } *ElementNode;
 
+/**
+ * Struct definition for AmountSet - Storage for a ElementNode linked list.
+ */
 struct AmountSet_t {
     ElementNode head;
     ElementNode current;

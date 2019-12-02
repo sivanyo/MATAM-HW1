@@ -50,5 +50,6 @@ int main() {
 //    asDelete(set, &x);
 //    asDelete(set, &h);
 //    asDelete(set, &z);
+    asDestroy(set);
     return 0;
 }
