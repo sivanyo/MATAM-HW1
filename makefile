@@ -1,5 +1,5 @@
 CC = gcc
-DEBUG_FLAG =
+DEBUG_FLAGS =
 OBJS = matamazom.o matamazom_print.o matamazom_main.o matamazom_tests.o amount_set.o
 EXEC = matamazom
 LIBS = -L. -lm -lmtm
@@ -35,11 +35,11 @@ matamazom.o: matamazom.c matamazom.h amount_set.o matamazom_print.o
 
 # build amount_set library file
 amount_set.o: amount_set.c amount_set.h
-	$(CC) -c $(DEUBG_FLAGS) $(CFLAGS) $*.c
+	$(CC) -c $(DEBUG_FLAGS) $(CFLAGS) $*.c
 
 # build matamazom_print library file
 matamazom_print.o: matamazom_print.c matamazom_print.h
-	$(CC) -c $(DEUBG_FLAGS) $(CFLAGS) $*.c
+	$(CC) -c $(DEBUG_FLAGS) $(CFLAGS) $*.c
 
 # clean working directory
 clean:
