@@ -52,7 +52,10 @@ struct Matamazom_t {
     unsigned int lastOrderId;
 };
 
-// custom functions for internal use
+/**
+* This function will get a matamazom and an product ID and check if there is
+* a product with the same ID in matamazom
+*/
 static bool warehouseContainsProduct(Matamazom matamazom,
                                      const unsigned int id) {
     ProductNode tempProduct;
@@ -65,7 +68,10 @@ static bool warehouseContainsProduct(Matamazom matamazom,
     }
     return false;
 }
-
+/**
+*This function will get a matamazom and an order ID and check if there is
+* a order with the same ID in matamazom
+ */
 static bool warehouseContainsOrder(Matamazom matamazom,
                                    const unsigned int id) {
     OrderNode tempOrder;
@@ -104,7 +110,9 @@ static bool removeProductFromOrders(Matamazom matamazom, unsigned int id) {
 
     return true;
 }
-
+/**
+ * This function will get a string and check if it is a valid name
+ */
 static bool checkLegalName(const char *name) {
     if (strlen(name) == 0) {
         return false;
@@ -117,7 +125,6 @@ static bool checkLegalName(const char *name) {
         return false;
     }
 }
-
 /**
  * Function to check if the provided amount matches the AmountType specified.
  */
@@ -143,7 +150,10 @@ static bool checkAmountType(double amount,
         return true;
     }
 }
-
+/**
+ * This function will make a general check for a product, according to
+ * the course demands
+ */
 static MatamazomResult validProductCheck(Matamazom matamazom,
                                          const unsigned int id,
                                          const char *name, const double amount,
@@ -171,7 +181,10 @@ static MatamazomResult validProductCheck(Matamazom matamazom,
 
     return MATAMAZOM_SUCCESS;
 }
-
+/**
+ * This function will get a matamazom warehouse and a product Id and will return
+ * the product with same ID from the warehouse
+ */
 static ProductNode getProductById(Matamazom matamazom, const unsigned int id) {
     if (matamazom == NULL) {
         return NULL;
@@ -241,7 +254,10 @@ static double getProductAmount(Matamazom matamazom, const unsigned int id) {
     // Shouldn't get here.
     return -1;
 }
-
+/**
+ * This function will calculate the update income of a certain product by it's
+ * ID
+*/
 static MatamazomResult changeProductIncome(Matamazom matamazom,
                                            const unsigned int id,
                                            double income) {
@@ -259,7 +275,9 @@ static MatamazomResult changeProductIncome(Matamazom matamazom,
     }
     return MATAMAZOM_PRODUCT_NOT_EXIST;
 }
-
+/**
+ * This function will calculate the product price
+ */
 static double calculateProductPrice(Matamazom matamazom, const unsigned int id,
                                     double amount) {
     if (matamazom == NULL) {
@@ -274,7 +292,10 @@ static double calculateProductPrice(Matamazom matamazom, const unsigned int id,
     }
     return -1;
 }
-
+/**
+ * This function gets a matamzom warehouse and an order ID and will
+ * remove the order from the warehouse
+ */
 static MatamazomResult removeShippedOrder(Matamazom matamazom,
                                           const unsigned int id) {
     if (matamazom == NULL) {
@@ -302,7 +323,9 @@ static MatamazomResult removeShippedOrder(Matamazom matamazom,
     // Shouldn't get here.
     return MATAMAZOM_ORDER_NOT_EXIST;
 }
-
+/**
+ * This function will fill all the fields in the given product
+ */
 static ProductNode fillProductFields(ProductNode product,
                                      const unsigned int id,
                                      const char *copyName, const double amount,
@@ -321,7 +344,10 @@ static ProductNode fillProductFields(ProductNode product,
 
     return product;
 }
-
+/**
+ * This function gets a warehouse and a product, and will put the
+ * product in the proper place according to its ID
+ */
 static MatamazomResult addProductToLinkedList(Matamazom matamazom,
                                               ProductNode newProduct) {
     if (matamazom->productsHead == NULL) {
