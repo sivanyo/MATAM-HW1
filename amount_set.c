@@ -5,12 +5,19 @@
 #include "amount_set.h"
 #include <stdlib.h>
 
+/**
+ * Struct definition for ElementNode - linked list container
+ * for ASElements with amount.
+ */
 typedef struct element_node_t {
     ASElement element;
     double amount;
     struct element_node_t *next;
 } *ElementNode;
 
+/**
+ * Struct definition for AmountSet - Storage for a ElementNode linked list.
+ */
 struct AmountSet_t {
     ElementNode head;
     ElementNode current;
@@ -22,20 +29,22 @@ struct AmountSet_t {
 AmountSet asCreate(CopyASElement copyElement,
                    FreeASElement freeElement,
                    CompareASElements compareElements) {
-    AmountSet as = calloc(1, sizeof(*as));
-    if (as == NULL ||
-        copyElement == NULL ||
-        freeElement == NULL ||
+    if (copyElement == NULL || freeElement == NULL ||
         compareElements == NULL) {
         return NULL;
     }
-    as->head = NULL;
-    as->current = NULL;
-    as->copy = copyElement;
-    as->free = freeElement;
-    as->compare = compareElements;
+    AmountSet set = calloc(1, sizeof(*set));
+    if (set == NULL) {
+        free(set);
+        return NULL;
+    }
+    set->head = NULL;
+    set->current = NULL;
+    set->copy = copyElement;
+    set->free = freeElement;
+    set->compare = compareElements;
 
-    return as;
+    return set;
 }
 
 void asDestroy(AmountSet set) {
@@ -63,41 +72,41 @@ AmountSet asCopy(AmountSet set) {
         return NULL;
     }
 
-    AmountSet as = asCreate(set->copy, set->free, set->compare);
-    if (as == NULL) {
+    AmountSet copiedSet = asCreate(set->copy, set->free, set->compare);
+    if (copiedSet == NULL) {
         return NULL;
     }
 
     if (set->head == NULL) {
         // linked list in original set is empty, so we can return.
-        return as;
+        return copiedSet;
     }
     ElementNode current = set->head;
     ElementNode newNode = calloc(1, sizeof(*newNode));
     if (newNode == NULL) {
-        asDestroy(as);
+        asDestroy(copiedSet);
         return NULL;
     }
     newNode->element = set->copy(current->element);
     if (newNode->element == NULL) {
         free(newNode);
-        asDestroy(as);
+        asDestroy(copiedSet);
         return NULL;
     }
     newNode->amount = current->amount;
-    as->head = newNode;
+    copiedSet->head = newNode;
     ElementNode previous = newNode;
     current = current->next;
     while (current != NULL) {
         newNode = calloc(1, sizeof(*newNode));
         if (newNode == NULL) {
-            asDestroy(as);
+            asDestroy(copiedSet);
             return NULL;
         }
         newNode->element = set->copy(current->element);
         if (newNode->element == NULL) {
             free(newNode);
-            asDestroy(as);
+            asDestroy(copiedSet);
             return NULL;
         }
         newNode->amount = current->amount;
@@ -106,7 +115,7 @@ AmountSet asCopy(AmountSet set) {
         current = current->next;
     }
 
-    return as;
+    return copiedSet;
 }
 
 int asGetSize(AmountSet set) {
@@ -142,8 +151,9 @@ bool asContains(AmountSet set, ASElement element) {
 }
 
 
-AmountSetResult asGetAmount(AmountSet set, ASElement element, double *outAmount) {
-    if (set == NULL || element == NULL) {
+AmountSetResult asGetAmount(AmountSet set, ASElement element,
+                            double *outAmount) {
+    if (set == NULL || element == NULL || outAmount == NULL) {
         return AS_NULL_ARGUMENT;
     }
 
@@ -217,7 +227,8 @@ AmountSetResult asRegister(AmountSet set, ASElement element) {
     }
 }
 
-AmountSetResult asChangeAmount(AmountSet set, ASElement element, const double amount) {
+AmountSetResult asChangeAmount(AmountSet set, ASElement element,
+                               const double amount) {
     if (set == NULL || element == NULL) {
         return AS_NULL_ARGUMENT;
     }
@@ -243,10 +254,15 @@ AmountSetResult asDelete(AmountSet set, ASElement element) {
     }
 
     ElementNode current = set->head;
+    if (set->head == NULL) {
+        // The set is empty, so the item doesn't exist.
+        return AS_ITEM_DOES_NOT_EXIST;
+    }
     if (!set->compare(current->element, element)) {
         // The first item in the linked list is the one we need to remove
         // Freeing and setting a new head.
         set->head = current->next;
+        set->free(current->element);
         free(current);
         current = NULL;
         return AS_SUCCESS;
@@ -281,6 +297,7 @@ AmountSetResult asClear(AmountSet set) {
         current = next;
     }
     set->head = NULL;
+    set->current = NULL;
     return AS_SUCCESS;
 }
 
@@ -298,7 +315,7 @@ ASElement asGetFirst(AmountSet set) {
 }
 
 ASElement asGetNext(AmountSet set) {
-    if (set == NULL) {
+    if (set == NULL || set->current == NULL) {
         return NULL;
     }
 
