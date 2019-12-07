@@ -15,5 +15,7 @@ add_executable(matamazom_local main2.c matamazom.c matamazom.h amount_set.c amou
 target_link_libraries(matamazom_local m)
 add_executable(matamazom_noa noa_matamazom_tests.c matamazom.c matamazom.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
 target_link_libraries(matamazom_noa m)
+add_executable(matamazom_yonatana matamazom.c matamazom.h test_matamazom_yonatan_and_hen.c tests/matamazom_tests.c tests/matamazom_tests.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
+target_link_libraries(matamazom_yonatana m)
 add_executable(matamazom_real matamazom.c matamazom.h tests/matamazom_main.c tests/matamazom_tests.c tests/matamazom_tests.h amount_set.c amount_set.h matamazom_print.c matamazom_print.h)
 target_link_libraries(matamazom_real m)

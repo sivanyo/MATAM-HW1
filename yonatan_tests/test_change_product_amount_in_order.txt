@@ -1,0 +1,38 @@
+Order 1 Details:
+name: Banana, id: 111, amount: 14.300, price: 42.900
+----------
+Total Price: 42.900
+Order 1 Details:
+----------
+Total Price: 0.000
+Order 1 Details:
+name: Banana, id: 111, amount: 14.300, price: 42.900
+----------
+Total Price: 42.900
+Order 1 Details:
+----------
+Total Price: 0.000
+Order 1 Details:
+name: Television, id: 89, amount: 6.000, price: 18.000
+name: Banana, id: 111, amount: 14.300, price: 42.900
+name: Fish, id: 126, amount: 7.700, price: 23.100
+----------
+Total Price: 84.000
+Order 1 Details:
+name: Television, id: 89, amount: 3.000, price: 9.000
+name: Banana, id: 111, amount: 6.600, price: 19.800
+----------
+Total Price: 28.800
+Order 2 Details:
+----------
+Total Price: 0.000
+Order 3 Details:
+----------
+Total Price: 0.000
+Order 3 Details:
+----------
+Total Price: 0.000
+Order 3 Details:
+name: Black Eyed Pea, id: 43, amount: 0.500, price: 1.500
+----------
+Total Price: 1.500
