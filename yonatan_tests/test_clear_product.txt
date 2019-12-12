@@ -1,0 +1,65 @@
+Order 1 Details:
+----------
+Total Price: 0.000
+Order 2 Details:
+----------
+Total Price: 0.000
+Order 3 Details:
+----------
+Total Price: 0.000
+Order 4 Details:
+----------
+Total Price: 0.000
+Inventory Status:
+name: p2, id: 1, amount: 4.000, price: 3.000
+name: prod, id: 2, amount: 4.600, price: 3.000
+name: p5, id: 3, amount: 4.500, price: 1.000
+name: p4, id: 43, amount: 4.500, price: 1.000
+name: p3, id: 56, amount: 3.500, price: 3.000
+Order 1 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+name: prod, id: 2, amount: 2.400, price: 7.200
+name: p3, id: 56, amount: 2.500, price: 7.500
+----------
+Total Price: 74.700
+Order 2 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+name: prod, id: 2, amount: 2.400, price: 7.200
+name: p3, id: 56, amount: 2.500, price: 7.500
+----------
+Total Price: 74.700
+Order 3 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+name: p4, id: 43, amount: 2.500, price: 2.500
+name: p3, id: 56, amount: 2.500, price: 7.500
+----------
+Total Price: 70.000
+Order 4 Details:
+name: p5, id: 3, amount: 20.000, price: 20.000
+name: p4, id: 43, amount: 2.500, price: 2.500
+name: p3, id: 56, amount: 2.500, price: 7.500
+----------
+Total Price: 30.000
+Order 1 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+name: prod, id: 2, amount: 2.400, price: 7.200
+----------
+Total Price: 67.200
+Order 2 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+name: prod, id: 2, amount: 2.400, price: 7.200
+----------
+Total Price: 67.200
+Order 3 Details:
+name: p2, id: 1, amount: 20.000, price: 60.000
+----------
+Total Price: 60.000
+Order 4 Details:
+----------
+Total Price: 0.000
+Inventory Status:
+name: p2, id: 1, amount: 4.000, price: 3.000
+name: prod, id: 2, amount: 4.600, price: 3.000
+Inventory Status:
+name: p2, id: 1, amount: 4.000, price: 3.000
+name: prod, id: 2, amount: 4.600, price: 3.000

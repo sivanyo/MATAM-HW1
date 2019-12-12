@@ -1,0 +1,12 @@
+Inventory Status:
+name: prod, id: 2, amount: 4.600, price: 3.000
+name: prod, id: 3, amount: 4.500, price: 3.000
+name: prod, id: 4, amount: 4.000, price: 3.000
+Inventory Status:
+name: prod, id: 2, amount: 4.900, price: 3.000
+name: prod, id: 3, amount: 5.500, price: 3.000
+name: prod, id: 4, amount: 4.000, price: 3.000
+Inventory Status:
+name: prod, id: 2, amount: 4.900, price: 3.000
+name: prod, id: 3, amount: 10.000, price: 3.000
+name: prod, id: 4, amount: 5.000, price: 3.000

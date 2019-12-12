@@ -1,0 +1,4 @@
+Inventory Status:
+Inventory Status:
+name: prod, id: 1, amount: 4.000, price: 3.000
+name: prod, id: 2, amount: 4.600, price: 3.000
